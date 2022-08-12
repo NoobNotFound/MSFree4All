@@ -1,0 +1,270 @@
+﻿<Page
+    x:Class="MSFree4All.Views.OfficePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MSFree4All.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:ToolKit="using:CommunityToolkit.WinUI.UI.Controls"
+   xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
+    xmlns:Templates="using:MSFree4All.Core.Office.DataTemplates"
+    xmlns:NoobUI="using:MSFree4All.UserControls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" Padding="0,0,15,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="General" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <!--#region Products-->
+                <NoobUI:NicExpander ExpanderStyle="Default" Icon="&#xe9d5;" Title="Products" Description="The products you want to deploy.">
+                    <!--#region  Header-->
+                    <NoobUI:NicExpander.HeaderControls>
+                        <Button x:Name="btnAddProduct" Click="btnAddProduct_Click" Padding="7">
+                            <FontIcon Glyph="&#xe710;"/>
+                        </Button>
+                    </NoobUI:NicExpander.HeaderControls>
+                    <!--#endregion-->
+                    <!--#region  Content-->
+                    <NoobUI:NicExpander.Controls>
+                        <Grid>
+                            <ToolKit:AdaptiveGridView x:Name="listProducts"
+                                   ItemHeight="100"
+                                              HorizontalAlignment="Left"
+                                              StretchContentForSingleRow="True"
+                  animations:ItemsReorderAnimation.Duration="00:00:00.3750000"
+                                   DesiredWidth="180"
+                                   SelectionMode="None"
+                                   IsItemClickEnabled="False">
+                                <ToolKit:AdaptiveGridView.ItemTemplate>
+                                    <DataTemplate x:DataType="Templates:OfficeProduct">
+                                        <Grid x:DefaultBindMode="OneWay">
+                                            <Button HorizontalAlignment="Stretch" Background="Transparent" Padding="0" Tag="{x:Bind Count}" Click="btnProduct_Click" ToolTipService.ToolTip="{x:Bind ID}" VerticalAlignment="Top" MinWidth="170" MaxWidth="320" MinHeight="85">
+                                                <Button.ContextFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyout.Items>
+                                                            <MenuFlyoutItem Click="mitRemove_Click" Tag="{x:Bind Count}" Text="Remove">
+                                                                <MenuFlyoutItem.Icon>
+                                                                    <FontIcon Glyph="&#xe74d;"/>
+                                                                </MenuFlyoutItem.Icon>
+                                                            </MenuFlyoutItem>
+                                                            <MenuFlyoutItem Click="mitEdit_Click" Tag="{x:Bind Count}" Text="Edit">
+                                                                <MenuFlyoutItem.Icon>
+                                                                    <FontIcon Glyph="&#xe70f;"/>
+                                                                </MenuFlyoutItem.Icon>
+                                                            </MenuFlyoutItem>
+                                                        </MenuFlyout.Items>
+                                                    </MenuFlyout>
+                                                </Button.ContextFlyout>
+                                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="5,0,15,0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <TextBlock Grid.Row="0" Margin="0,0" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{StaticResource TextFillColorSecondaryBrush}" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{x:Bind Version}"/>
+                                                    <TextBlock Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis" Text="{x:Bind DisplayName}" Margin="0"/>
+                                                </Grid>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ToolKit:AdaptiveGridView.ItemTemplate>
+                            </ToolKit:AdaptiveGridView>
+                        </Grid>
+                    </NoobUI:NicExpander.Controls>
+                    <!--#endregion-->
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Architecture-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Architecture" Icon="&#xec7a;" Description="The architecture of the all products you want to deploy." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ComboBox SelectionChanged="cmbxArch_SelectionChanged" x:Name="cmbxArch">
+                            <ComboBox.Items>
+                                <x:String>64 Bit</x:String>
+                                <x:String>32 Bit</x:String>
+                                <x:String>Match OS</x:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Channel-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Channel" Icon="&#xec7a;" Description="The deployment channel of the products. Current is reccomended." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ComboBox SelectionChanged="cmbxChannel_SelectionChanged" x:Name="cmbxChannel">
+                            <ComboBox.Items>
+                                <ComboBoxItem Tag="PerpetualVL2019" Content="Office 2019 Perpetual Enterprise"/>
+                                <ComboBoxItem Tag="PerpetualVL2021" Content="Office 2021 Perpetual Enterprise"/>
+                                <ComboBoxItem Tag="SemiAnnual" Content="Semi-Annual Enterprise"/>
+                                <ComboBoxItem Tag="MonthlyEnterprise" Content="Monthly Enterprise"/>
+                                <ComboBoxItem Tag="Current" Content="Current"/>
+                                <ComboBoxItem Tag="SemiAnnualPreview" Content="Semi-Annual Enterprise (Preview)"/>
+                                <ComboBoxItem Tag="CurrentPreview" Content="Current (Preview)"/>
+                                <ComboBoxItem Tag="BetaChannel" Content="Beta"/>
+                            </ComboBox.Items>
+                        </ComboBox>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region Information -->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Information" Icon="&#xe946;" Description="Company name, Description. (Optional)" >
+                    <NoobUI:NicExpander.Controls>
+                        <Grid>
+                            <StackPanel>
+                                <TextBlock Text="Provide your organization name to set the Company property on office documents" TextWrapping="WrapWholeWords"/>
+                                <TextBox Margin="0,5" x:Name="txtOrgName" PlaceholderText="Noob's Channel"/>
+                                <TextBlock Text="Provide a description for this configuration" TextWrapping="WrapWholeWords"/>
+                                <TextBox Margin="0,5,0,0" x:Name="txtDescription" TextChanged="txtDescription_TextChanged" AcceptsReturn="True"/>
+                            </StackPanel>
+                        </Grid>
+                    </NoobUI:NicExpander.Controls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <TextBlock Text="Installation" FontWeight="SemiBold" Margin="0,20,0,10"/>
+
+                <!--#region  Full Version-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Full Version" Icon="&#xec7a;" Description="The excat version (build) you want to deploy." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <TextBox TextChanged="txtFullVer_TextChanged" x:Name="txtFullVer" PlaceholderText="16.0.11615.336002"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Download Path-->
+                <NoobUI:NicExpander Icon="&#xebd3;" Margin="0,5,0,0" Title="Download Path" Description="Defines where the installation files are downloaded,You must specify a version when using download path." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <TextBox TextChanged="txtDownloadPath_TextChanged" x:Name="txtDownloadPath" PlaceholderText="\\servera\share"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Source Path-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Source Path" Icon="&#xec7a;" Description="If the source path is empty, the Office CDN is used by default as the source. In download mode, defines where to save the files." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <TextBox TextChanged="txtSourcePath_TextChanged" x:Name="txtSourcePath" PlaceholderText="\\serverb\share"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  CDN Fallback-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="CDN Fallback" Icon="&#xec7a;" Description="Fallback to the CDN for missing languages." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ToggleSwitch Toggled="tglCDNFallback_Toggled" OnContent="True" OffContent="False" x:Name="tglCDNFallback"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Display None-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Display None" Icon="&#xe8fc;" Description="Difines to display any UI during the installation." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ToggleSwitch OnContent="True" Toggled="tglDisplay_Toggled" OffContent="False" x:Name="tglDisplay"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Force Apps Shutdown-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Close all Office apps" Icon="&#xec7a;" Description="Close all running office apps without asking when the deploy starts." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ToggleSwitch OnContent="True" Toggled="tglForceAppsShutDown_Toggled" OffContent="False" x:Name="tglForceAppsShutDown"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Pin Icons-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Pin icons to taskbar" Icon="&#xec7a;" Description="Only available fore windows 7, 8 and 8.1.." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ToggleSwitch Toggled="tglPicIcons_Toggled" OnContent="True" OffContent="False" x:Name="tglPicIcons"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region  Upgrade Options-->
+                <NoobUI:NicExpander Margin="0,5,0,0" ExpanderStyle="Default" Icon="&#xe777;" Title="Upgrade Options" Description="Force upgrade, remove MSI versions of office.">
+                    <NoobUI:NicExpander.Controls>
+                        <Grid>
+                            <StackPanel x:Name="pnlRemMSIApps">
+                                <CheckBox Click="chkbxForceUpgrade_Click" x:Name="chkbxForceUpgrade" Content="Force upgrade" />
+                                <CheckBox Click="chkbxMSIRemove_Click" x:Name="chkbxMSIRemove" Content="Remove existing MSI versions of Office."/>
+                                <CheckBox x:Name="chkbxMSILang" Click="chkbxMSILang_Click" Content="Install same language as the previous MSI version."/>
+                                <TextBlock Margin="0,15,0,5" FontWeight="SemiBold" Text="Ignore these products"/>
+
+                                <CheckBox Tag="VisPro" x:Name="chkbxMSIVisPro" Click="chkbxMSIApp_Click"  Content="Visio Pro"/>
+                                <CheckBox Tag="VisStd" x:Name="chkbxMSIVisStd" Click="chkbxMSIApp_Click"   Content="Visio Standard"/>
+                                <CheckBox Tag="PrjPro" x:Name="chkbxMSIPrjPro" Click="chkbxMSIApp_Click"   Content="Project Pro"/>
+                                <CheckBox Tag="PrjStd" x:Name="chkbxMSIPrjStd" Click="chkbxMSIApp_Click"   Content="Project Standard"/>
+                                <CheckBox Tag="InfoPath" x:Name="chkbxMSIInfoPath"  Click="chkbxMSIApp_Click"  Content="Info Path Volume"/>
+                                <CheckBox Tag="InfoPathR" x:Name="chkbxMSIInfoPathR" Click="chkbxMSIApp_Click"   Content="Info Path Retail"/>
+                                <CheckBox Tag="SharePointDesigner" x:Name="chkbxMSISharePoint"  Click="chkbxMSIApp_Click"  Content="Share Point Designer"/>
+                            </StackPanel>
+                        </Grid>
+                    </NoobUI:NicExpander.Controls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <TextBlock Text="License &amp; Activation" FontWeight="SemiBold" Margin="0,20,0,10"/>
+
+                <!--#region  Auto Activate-->
+                <NoobUI:NicExpander Margin="0,5,0,0" Title="Auto Activate" Icon="&#xe713;" Description="You can set Auto Activate to True to have the product activate automatically." ExpanderStyle="Static">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ToggleSwitch x:Name="tglAutoAct" Toggled="tglAutoAct_Toggled" OnContent="True" OffContent="False"/>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+                <!--#region Licensing type-->
+                <NoobUI:NicExpander Margin="0,5,0,0" x:Name="ExpanderLicensing" Title="Product Activation" Icon="&#xe713;" Description="Very optional. You can continue without this">
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ComboBox x:Name="cmbxLicenseType" SelectionChanged="cmbxLicenseType_SelectionChanged">
+                            <ComboBox.Items>
+                                <x:String>User Based</x:String>
+                                <x:String>Device Based</x:String>
+                                <x:String>Shared Computer</x:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                    </NoobUI:NicExpander.HeaderControls>
+                    <NoobUI:NicExpander.Controls>
+                        <Grid>
+                            <StackPanel>
+                                <CheckBox Click="chkBxSCLCacheOverride_Click" x:Name="chkBxSCLCacheOverride" Content="Allow to roam the licensing token"/>
+                                <TextBox TextChanged="txtSCLCacheOverrideDir_TextChanged" PlaceholderText="Directory" x:Name="txtSCLCacheOverrideDir"/>
+                            </StackPanel>
+                        </Grid>
+                    </NoobUI:NicExpander.Controls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
+
+            </StackPanel>
+        </ScrollViewer>
+        <Grid Grid.Row="1">
+            <CommandBar HorizontalAlignment="Right" DefaultLabelPosition="Right">
+                <AppBarButton ToolTipService.ToolTip="Deploy" Label="Deploy">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xe768;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator/>
+                <AppBarButton ToolTipService.ToolTip="View Configuration.xml" Label="View Config">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xe890;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Save Configuration.xml" Label="Save Config">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xe78c;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xe8e5;"/>
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
+    </Grid>
+</Page>

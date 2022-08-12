@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MSFree4All (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MSFree4All (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

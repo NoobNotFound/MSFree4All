@@ -1,0 +1,40 @@
+﻿<UserControl
+    x:Class="MSFree4All.UserControls.ExcludeAppsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MSFree4All.UserControls"
+    xmlns:ToolKitUI="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    Loaded="UserControl_Loaded"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <GridView
+            SelectionMode="None"
+            IsItemClickEnabled="False"
+    x:Name="lv">
+
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </GridView.ItemContainerStyle>
+
+            <!-- An extra property also needs to be added to the GridView's ItemsWrapGrid.
+    The following sets the maximum # of items to show before wrapping.-->
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid x:Name="MaxItemsWrapGrid"
+                           MaximumRowsOrColumns="3"
+                           Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="local:ExcludeAppTemplate">
+                    <CheckBox Click="CheckBox_Click" Content="{x:Bind App}" IsChecked="{x:Bind Exists,Mode=OneWay}"/>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+    </Grid>
+</UserControl>

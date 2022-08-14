@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MSFree4All.Core.Office.Enums;
 using System.Collections.ObjectModel;
 using MSFree4All.Core.Office;
-namespace MSFree4All.Core.Office.DataTemplates
+namespace MSFree4All.Core.Office.Models
 {
     public class OfficeProduct : INotifyPropertyChanged
     {

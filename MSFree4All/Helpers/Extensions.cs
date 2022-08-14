@@ -10,7 +10,7 @@ namespace MSFree4All.Helpers
 {
     public static class Extensions
     {
-        public static ContentDialog ToContentDialog(this object content,string title,string closebtnText, ContentDialogButton defaultButton)
+        public static ContentDialog ToContentDialog(this object content,string title,string closebtnText = null, ContentDialogButton defaultButton = ContentDialogButton.Close)
         {
             ContentDialog dialog = new()
             {

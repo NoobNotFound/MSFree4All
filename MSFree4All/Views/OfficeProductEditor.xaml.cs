@@ -16,7 +16,7 @@ using MSFree4All.Helpers;
 using MSFree4All.Core.Office.Enums;
 using MSFree4All.Core.Office;
 using MSFree4All.UserControls;  
-using MSFree4All.Core.Office.DataTemplates;
+using MSFree4All.Core.Office.Models;
 using MSFree4All.Core;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,7 +34,7 @@ namespace MSFree4All.Views
         {
             this.InitializeComponent();
             this.Count = MainCore.Office.SelectedProductCount;
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -54,7 +54,7 @@ namespace MSFree4All.Views
         private void mitChooseProduct_Click(object sender, RoutedEventArgs e)
         {
             var s = ((MenuFlyoutItem)sender);
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if(item.Count == Count)
                 {
@@ -68,7 +68,7 @@ namespace MSFree4All.Views
 
         private void btnAddLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -110,7 +110,7 @@ namespace MSFree4All.Views
 
         private void txtLang_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -130,7 +130,7 @@ namespace MSFree4All.Views
 
         private void btnRemoveLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -148,11 +148,11 @@ namespace MSFree4All.Views
 
         private void btnDel_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {
-                    MainCore.Office.OfficeCore.Products.Remove(item);
+                    MainCore.Office.OfficeCore.Add.Products.Remove(item);
                     OfficeMainPage.MainFrame.Navigate(typeof(OfficePage),null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
                     return;
                 }
@@ -161,7 +161,7 @@ namespace MSFree4All.Views
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            var errors = MainCore.Office.OfficeCore.CheckProductErrors(Count);
+            var errors = MainCore.Office.OfficeCore.Add.CheckProductErrors(Count);
             if (errors.Count() == 0)
             {
                 OfficeMainPage.MainFrame.Navigate(typeof(OfficePage), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
@@ -181,7 +181,7 @@ namespace MSFree4All.Views
         private void txtPIDKEY_TextChanged(object sender, TextChangedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == Count)
                 {

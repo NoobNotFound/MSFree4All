@@ -153,6 +153,8 @@ namespace MSFree4All.Core.Office
                     return "Only one product can be deployed as a volume-license product";
                 case Errors.InvalidLangaugae:
                     return "Invalid language(s) detected";
+                case Errors.InvalidChannelVolume:
+                    return "You can't select that channel with a volume-license product";
             }
             return "";
         }
@@ -192,6 +194,42 @@ namespace MSFree4All.Core.Office
         public static int ToInt(this bool b)
         {
             return b ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Converts the <paramref name="b"/> to an <see cref="int"/>
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns>1, 0 or 2</returns>
+        public static int ToInt(this bool? b)
+        {
+            switch (b)
+            {
+                case true:
+                    return 1;
+                case false:
+                    return 0;
+                case null:
+                    return 2;
+            }
+        }
+
+        /// <summary>
+        /// Converts the <paramref name="b"/> to an <see cref="int"/>
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns>true, false or null</returns>
+        public static bool? ToBool(this int i)
+        {
+            switch (i)
+            {
+                case 1:
+                    return true;
+                case 0:
+                    return false;
+                default:
+                    return null;
+            }
         }
 
         /// <summary>

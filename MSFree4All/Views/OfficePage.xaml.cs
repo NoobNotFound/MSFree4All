@@ -14,15 +14,14 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using MSFree4All.Helpers;
+using MSFree4All.Core.Office;
 using MSFree4All.Core.Office.Enums;
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.UI.Text;
+using CommunityToolkit.WinUI.UI.Controls;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace MSFree4All.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class OfficePage : Page
     {
         public OfficePage()
@@ -36,7 +35,7 @@ namespace MSFree4All.Views
         /// </summary>
         public void Initialize()
         {
-            listProducts.ItemsSource = MainCore.Office.OfficeCore.Products;
+            listProducts.ItemsSource = MainCore.Office.OfficeCore.Add.Products;
             UpdateRemoveMSIStates();
 
             tglCDNFallback.IsOn = MainCore.Office.OfficeCore.Add.AllowCdnFallback;
@@ -62,22 +61,31 @@ namespace MSFree4All.Views
             chkBxSCLCacheOverride.IsChecked = MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverride;
             txtSCLCacheOverrideDir.Text = MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory;
             UpdateLicenseUI();
+
             cmbxChannel.SelectedIndex = ((int)MainCore.Office.OfficeCore.Add.Channel);
             txtDescription.Text = MainCore.Office.OfficeCore.Description;
             txtOrgName.Text = MainCore.Office.OfficeCore.CompanyName;
             txtFullVer.Text = MainCore.Office.OfficeCore.Add.Version;
             txtDownloadPath.Text = MainCore.Office.OfficeCore.Add.DownloadPath;
+
+            cmbxUpdates.SelectedIndex = MainCore.Office.OfficeCore.Updates.Enabled.ToInt();
+            cmbxUpdateChannel.SelectedIndex = MainCore.Office.OfficeCore.Updates.Channel == null ? 8 : ((int)MainCore.Office.OfficeCore.Updates.Channel.Value);
+
+            txtUpdatesDeadline.Text = MainCore.Office.OfficeCore.Updates.DeadLine;
+            txtUpdateVer.Text = MainCore.Office.OfficeCore.Updates.TargetVersion;
+            txtUpdatePath.Text = MainCore.Office.OfficeCore.Updates.UpdatePath;
+            UpdateUpdatesUI();
         }
 
         #region Products
         private void mitRemove_Click(object sender, RoutedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
             {
                 if (item.Count == int.Parse(((MenuFlyoutItem)sender).Tag.ToString()))
                 {
-                    MainCore.Office.OfficeCore.Products.Remove(item);
+                    MainCore.Office.OfficeCore.Add.Products.Remove(item);
                     return;
                 }
             }
@@ -98,7 +106,7 @@ namespace MSFree4All.Views
         private void btnAddProduct_Click(object sender, RoutedEventArgs e)
         {
             MainCore.Office.OfficeProductsCount++;
-            MainCore.Office.OfficeCore.Products.Add(new Core.Office.DataTemplates.OfficeProduct(MainCore.Office.OfficeProductsCount));
+            MainCore.Office.OfficeCore.Add.Products.Add(new Core.Office.Models.OfficeProduct(MainCore.Office.OfficeProductsCount));
             MainCore.Office.SelectedProductCount = MainCore.Office.OfficeProductsCount;
             OfficeMainPage.MainFrame.Navigate(typeof(OfficeProductEditor), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromRight });
         }
@@ -256,12 +264,12 @@ namespace MSFree4All.Views
         #region Information
         private void txtOrgName_TextChanged(object sender, TextChangedEventArgs e)
         {
-          MainCore.Office.OfficeCore.CompanyName = txtOrgName.Text;
+            MainCore.Office.OfficeCore.CompanyName = txtOrgName.Text;
         }
 
         private void txtDescription_TextChanged(object sender, TextChangedEventArgs e)
         {
-          MainCore.Office.OfficeCore.Description = txtDescription.Text;
+            MainCore.Office.OfficeCore.Description = txtDescription.Text;
         }
         #endregion
 
@@ -278,6 +286,77 @@ namespace MSFree4All.Views
         private void txtSourcePath_TextChanged(object sender, TextChangedEventArgs e)
         {
             MainCore.Office.OfficeCore.Add.SourcePath = txtSourcePath.Text;
+        }
+
+        #region Updates
+        private void cmbxUpdates_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            MainCore.Office.OfficeCore.Updates.Enabled = cmbxUpdates.SelectedIndex.ToBool();
+            UpdateUpdatesUI();
+        }
+
+        private void UpdateUpdatesUI()
+        {
+            txtUpdatePath.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
+            txtUpdatesDeadline.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
+            txtUpdateVer.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
+            cmbxUpdateChannel.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
+        }
+
+        private void cmbxUpdateChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var tag = ((ComboBoxItem)cmbxUpdateChannel.SelectedItem).Tag;
+            MainCore.Office.OfficeCore.Updates.Channel = tag == null ? null : Enum.Parse<Channel>(tag.ToString());
+        }
+
+        private void txtUpdatePath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            MainCore.Office.OfficeCore.Updates.UpdatePath = txtUpdatePath.Text;
+        }
+
+        private void txtUpdateVer_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            MainCore.Office.OfficeCore.Updates.TargetVersion = txtUpdateVer.Text;
+        }
+
+        private void txtUpdatesDeadline_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            MainCore.Office.OfficeCore.Updates.DeadLine = txtUpdatesDeadline.Text;
+        }
+        #endregion
+
+        private void btnViewXML_Click(object sender, RoutedEventArgs e)
+        {
+            var r = MainCore.Office.OfficeCore.Compile();
+            if(r.Count() > 0)
+            {
+                var s = new StackPanel();
+                foreach (var item in r)
+                {
+                    s.Children.Add(new TextBlock() { Text = item.Title,FontWeight = FontWeights.SemiBold,FontSize = 16 });
+
+                    List<string> errorsList = new();
+                    foreach (var er in item)
+                    {
+                        errorsList.Add(er.ToReadableString());
+                    }
+                    s.Children.Add(new UserControls.BulletsList(errorsList));
+                }
+                try
+                {
+                    _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
+                }
+                catch { }
+            }
+            else
+            {
+                var dataPackage = new DataPackage();
+                dataPackage.SetText(MainCore.Office.OfficeCore.SerializeLastCompiled());
+                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Primary);
+                d.PrimaryButtonText = "Copy to clipboard";
+                d.PrimaryButtonClick += (_,_) => Clipboard.SetContent(dataPackage);
+                _ = d.ShowAsync();
+            }
         }
     }
 }

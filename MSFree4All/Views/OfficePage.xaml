@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     xmlns:ToolKit="using:CommunityToolkit.WinUI.UI.Controls"
    xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
-    xmlns:Templates="using:MSFree4All.Core.Office.DataTemplates"
+    xmlns:Templates="using:MSFree4All.Core.Office.Models"
     xmlns:NoobUI="using:MSFree4All.UserControls">
 
     <Grid>
@@ -206,6 +206,58 @@
                     </NoobUI:NicExpander.Controls>
                 </NoobUI:NicExpander>
                 <!--#endregion-->
+                
+                <!--#region  Updates-->
+                <NoobUI:NicExpander Margin="0,5,0,0" ExpanderStyle="Default" Icon="&#xe777;" Title="Updates" Description="Target Version, Deadline, Channel, Update Path">
+                    <NoobUI:NicExpander.Controls>
+                        <Grid>
+                            <StackPanel>
+                                <NoobUI:NicExpanderItem Margin="0,-10,0,0" BorderVisibility="Collapsed" Title="Channel">
+                                    <NoobUI:NicExpanderItem.Content>
+                                        <ComboBox SelectionChanged="cmbxUpdateChannel_SelectionChanged" x:Name="cmbxUpdateChannel">
+                                            <ComboBox.Items>
+                                                <ComboBoxItem Tag="PerpetualVL2019" Content="Office 2019 Perpetual Enterprise"/>
+                                                <ComboBoxItem Tag="PerpetualVL2021" Content="Office 2021 Perpetual Enterprise"/>
+                                                <ComboBoxItem Tag="SemiAnnual" Content="Semi-Annual Enterprise"/>
+                                                <ComboBoxItem Tag="MonthlyEnterprise" Content="Monthly Enterprise"/>
+                                                <ComboBoxItem Tag="Current" Content="Current"/>
+                                                <ComboBoxItem Tag="SemiAnnualPreview" Content="Semi-Annual Enterprise (Preview)"/>
+                                                <ComboBoxItem Tag="CurrentPreview" Content="Current (Preview)"/>
+                                                <ComboBoxItem Tag="BetaChannel" Content="Beta"/>
+                                                <ComboBoxItem Content="Default"/>
+                                            </ComboBox.Items>
+                                        </ComboBox>
+                                    </NoobUI:NicExpanderItem.Content>
+                                </NoobUI:NicExpanderItem>
+                                <NoobUI:NicExpanderItem Title="Update Path">
+                                    <NoobUI:NicExpanderItem.Content>
+                                        <TextBox x:Name="txtUpdatePath" TextChanged="txtUpdatePath_TextChanged" PlaceholderText="\\Server\Share"/>
+                                    </NoobUI:NicExpanderItem.Content>
+                                </NoobUI:NicExpanderItem>
+                                <NoobUI:NicExpanderItem Title="Target Version" >
+                                    <NoobUI:NicExpanderItem.Content>
+                                        <TextBox PlaceholderText="16.0.11615.336002" TextChanged="txtUpdateVer_TextChanged" x:Name="txtUpdateVer" />
+                                    </NoobUI:NicExpanderItem.Content>
+                                </NoobUI:NicExpanderItem>
+                                <NoobUI:NicExpanderItem Title="Deadline" >
+                                    <NoobUI:NicExpanderItem.Content>
+                                        <TextBox PlaceholderText="MM/DD/YYYY HH:mm" TextChanged="txtUpdatesDeadline_TextChanged" x:Name="txtUpdatesDeadline" />
+                                    </NoobUI:NicExpanderItem.Content>
+                                </NoobUI:NicExpanderItem>
+                            </StackPanel>
+                        </Grid>
+                    </NoobUI:NicExpander.Controls>
+                    <NoobUI:NicExpander.HeaderControls>
+                        <ComboBox x:Name="cmbxUpdates" SelectionChanged="cmbxUpdates_SelectionChanged">
+                            <ComboBox.Items>
+                                <x:String>Disabled</x:String>
+                                <x:String>Enabled</x:String>
+                                <x:String>Default</x:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                    </NoobUI:NicExpander.HeaderControls>
+                </NoobUI:NicExpander>
+                <!--#endregion-->
 
                 <TextBlock Text="License &amp; Activation" FontWeight="SemiBold" Margin="0,20,0,10"/>
 
@@ -238,7 +290,7 @@
                     </NoobUI:NicExpander.Controls>
                 </NoobUI:NicExpander>
                 <!--#endregion-->
-
+                
             </StackPanel>
         </ScrollViewer>
         <Grid Grid.Row="1">
@@ -249,7 +301,7 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarSeparator/>
-                <AppBarButton ToolTipService.ToolTip="View Configuration.xml" Label="View Config">
+                <AppBarButton x:Name="btnViewXML" Click="btnViewXML_Click" ToolTipService.ToolTip="View Configuration.xml" Label="View Config">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe890;"/>
                     </AppBarButton.Icon>

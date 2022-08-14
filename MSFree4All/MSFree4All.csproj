@@ -22,6 +22,7 @@
     <None Remove="ResourceDictionaries\RightAlignedToggleSwitch.xaml" />
     <None Remove="UserControls\ExcludeAppsView.xaml" />
     <None Remove="UserControls\NicExpander.xaml" />
+    <None Remove="UserControls\NicExpanderItem.xaml" />
     <None Remove="UserControls\TitleBar.xaml" />
     <None Remove="Views\OfficeMainPage.xaml" />
     <None Remove="Views\OfficePage.xaml" />
@@ -112,5 +113,8 @@
     <None Update="Assets\MSFree4All.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="UserControls\NicExpanderItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

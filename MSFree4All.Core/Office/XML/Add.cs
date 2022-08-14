@@ -18,10 +18,10 @@ public class Add {
 	public string SourcePath { get; set; } 
 
 	[XmlAttribute(AttributeName="DownloadPath")] 
-	public int DownloadPath { get; set; } 
+	public string DownloadPath { get; set; } 
 
 	[XmlAttribute(AttributeName="Version")] 
-	public int Version { get; set; } 
+	public string Version { get; set; } 
 
 	[XmlAttribute(AttributeName="ForceUpgrade")] 
 	public bool ForceUpgrade { get; set; } 

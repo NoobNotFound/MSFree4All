@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    xmlns:DataTemplates="using:MSFree4All.Core.Office.DataTemplates"
+    xmlns:DataTemplates="using:MSFree4All.Core.Office.Models"
     xmlns:NoobUI="using:MSFree4All.UserControls">
 
     <Grid>

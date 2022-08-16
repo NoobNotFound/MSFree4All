@@ -334,13 +334,8 @@ namespace MSFree4All.Views
                 foreach (var item in r)
                 {
                     s.Children.Add(new TextBlock() { Text = item.Title,FontWeight = FontWeights.SemiBold,FontSize = 16 });
-
-                    List<string> errorsList = new();
-                    foreach (var er in item)
-                    {
-                        errorsList.Add(er.ToReadableString());
-                    }
-                    s.Children.Add(new UserControls.BulletsList(errorsList));
+                    var li = from t in item select t.ToReadableString();
+                    s.Children.Add(new UserControls.BulletsList(li));
                 }
                 try
                 {
@@ -352,11 +347,27 @@ namespace MSFree4All.Views
             {
                 var dataPackage = new DataPackage();
                 dataPackage.SetText(MainCore.Office.OfficeCore.SerializeLastCompiled());
-                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Primary);
+                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Primary);
                 d.PrimaryButtonText = "Copy to clipboard";
                 d.PrimaryButtonClick += (_,_) => Clipboard.SetContent(dataPackage);
                 _ = d.ShowAsync();
             }
+        }
+
+        private void btnLoadXML_Click(object sender, RoutedEventArgs e)
+        {
+            var r = MainCore.Office.OfficeCore.DeserializeFromString("<configuration>\n<Add name=\"\" MigrateArch=\"True\" />\n</configuration>");
+            var s = new StackPanel();
+            foreach (var item in r)
+            {
+                s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
+                s.Children.Add(new UserControls.BulletsList(item));
+            }
+            try
+            {
+                _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
+            }
+            catch { }
         }
     }
 }

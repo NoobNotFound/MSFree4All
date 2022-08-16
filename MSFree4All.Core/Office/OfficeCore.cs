@@ -493,6 +493,14 @@ namespace MSFree4All.Core.Office
             Title = title;
         }
     }
+    public class StringErrorsList : List<string>
+    {
+        public string Title { get; set; } = "";
+        public StringErrorsList(string title)
+        {
+            Title = title;
+        }
+    }
     public class OfficeCore
     {
         #region Properties
@@ -579,5 +587,37 @@ namespace MSFree4All.Core.Office
             return stream.ToString();
         }
 
+        public StringErrorsList[] DeserializeFromString(string xml)
+        {
+            var se = new XmlSerializer(typeof(XML.Configuration));
+            #region Error Handlings
+            var UAttrErrors = new StringErrorsList("Unknown Attributes");
+            se.UnknownAttribute += (s, e) =>
+            {
+                UAttrErrors.Add($"At ({e.LineNumber},{e.LinePosition}):{e.ExpectedAttributes} is unknown.");
+            };
+
+            var UEleErrors = new StringErrorsList("Unknown Elements");
+            se.UnknownElement += (s, e) =>
+            {
+                UEleErrors.Add($"At ({e.LineNumber},{e.LinePosition}):{e.ExpectedElements} is unknown.");
+            };
+
+
+            var UNodeErrors = new StringErrorsList("Unknown Nodes");
+            se.UnknownNode += (s, e) =>
+            {
+                UNodeErrors.Add($"At ({e.LineNumber},{e.LinePosition}):{e.Name} is unknown.");
+            };
+            #endregion
+            var xmlr = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None, ValidationType = ValidationType.None });
+            var r = (XML.Configuration)se.Deserialize(new StringReader(xml));
+
+            var errors = new List<StringErrorsList>();
+            if(UAttrErrors.Count > 0) { errors.Add(UEleErrors); }
+            if(UEleErrors.Count > 0) { errors.Add(UEleErrors); }
+            if(UNodeErrors.Count > 0) { errors.Add(UNodeErrors); }
+            return errors.ToArray();
+        }
     }
 }

@@ -311,7 +311,7 @@
                         <FontIcon Glyph="&#xe78c;"/>
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
+                <AppBarButton x:Name="btnLoadXML" Click="btnLoadXML_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe8e5;"/>
                     </AppBarButton.Icon>

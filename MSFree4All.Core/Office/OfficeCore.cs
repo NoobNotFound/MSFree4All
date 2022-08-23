@@ -208,7 +208,21 @@ namespace MSFree4All.Core.Office
             properties.Add(new XML.Property { Name = nameof(AUTOACTIVATE), Value = AUTOACTIVATE.ToInt().ToString() });
             return properties;
         }
-
+        public static Properties SetProperties(List<XML.Property> properties)
+        {
+            bool GetBool(string name,bool isInt = false) { bool val = false; int ival; return (from b in properties where b.Name.ToLower() == name.ToLower() select !isInt ? (bool.TryParse(b.Value, out val) ? val : false) : int.TryParse(b.Value, out ival) ? ival == 1 : false).FirstOrDefault(); }
+            var p = new Properties
+            {
+                AUTOACTIVATE = GetBool(nameof(AUTOACTIVATE)),
+                FORCEAPPSHUTDOWN = GetBool(nameof(FORCEAPPSHUTDOWN)),
+                PinIconsToTaskbar = GetBool(nameof(PinIconsToTaskbar))
+            };
+            var l = from li in properties where (li.Name.ToLower() == "DeviceBasedLicensing".ToLower() || li.Name.ToLower() == "SharedComputerLicensing".ToLower()) && li.Value == "1" select li.Name.ToLower();
+            p.LicensingProperties.Type = l.Count() != 1 ? LicensingType.UserBased : l.FirstOrDefault() == "DeviceBasedLicensing".ToLower() ? LicensingType.DeviceBased : l.FirstOrDefault().ToLower() == "SharedComputerLicensing".ToLower() ? LicensingType.SharedComputer : LicensingType.UserBased;
+            p.LicensingProperties.SCLCacheOverride = GetBool("SCLCacheOverride",true);
+            p.LicensingProperties.SCLCacheOverrideDirectory = (from b in properties where b.Name.ToLower() == "SCLCacheOverrideDirectory".ToLower() select b.Value).FirstOrDefault();
+            return p;
+        }
         public class Licensing
         {
             public LicensingType Type { get; set; } = LicensingType.UserBased;
@@ -467,7 +481,7 @@ namespace MSFree4All.Core.Office
                     var p = new XML.Product()
                     {
                         ID = item.ID.ToString(),
-                        PIDKEY = item.PIDKEY,
+                        PIDKEY = string.IsNullOrEmpty(item.PIDKEY) ? null : item.PIDKEY,
                         Language = new List<XML.Language>(),
                         ExcludeApp = new List<XML.ExcludeApp>()
                     };
@@ -493,7 +507,15 @@ namespace MSFree4All.Core.Office
             Title = title;
         }
     }
-    public class OfficeCore
+    public class StringErrorsList : List<string>
+    {
+        public string Title { get; set; } = "";
+        public StringErrorsList(string title)
+        {
+            Title = title;
+        }
+    }
+    public class Configuration
     {
         #region Properties
 
@@ -504,23 +526,23 @@ namespace MSFree4All.Core.Office
         /// <summary>
         /// RemoveMSI element of the configuration
         /// </summary>
-        public RemoveMSI RemoveMSI { get; } = new RemoveMSI(false, new List<RemoveMSIApps>(), false);
+        public RemoveMSI RemoveMSI { get; set; } = new RemoveMSI(false, new List<RemoveMSIApps>(), false);
         /// <summary>
         /// Updates element of the configuration
         /// </summary>
-        public Updates Updates { get; } = new();
+        public Updates Updates { get; set; } = new();
         /// <summary>
         /// Add element of the configuration
         /// </summary>
-        public Add Add { get; } = new();
+        public Add Add { get; set; } = new();
         /// <summary>
         /// Display element of the configuration
         /// </summary>
-        public Display Display { get; } = new Display(DisplayLevel.Full, false);
+        public Display Display { get; set; } = new Display(DisplayLevel.Full, false);
         /// <summary>
         /// Property elements of the configuration
         /// </summary>
-        public Properties PropertyElements { get; } = new Properties();
+        public Properties PropertyElements { get; set; } = new Properties();
         /// <summary>
         /// organization name to set the Company property on office documents
         /// </summary>
@@ -532,25 +554,46 @@ namespace MSFree4All.Core.Office
 
         #endregion
 
+    }
+    public class OfficeCore
+    {
+        /// <summary>
+        /// Invokes when a the current Main Configuration was changed
+        /// </summary>
+        public event EventHandler ConfigurationUpdated = delegate { };
+
+        /// <summary>
+        /// An unique number used for identify an Office Product
+        /// </summary>
+        public int OfficeProductsIDsCount = 0;
+
+        /// <summary>
+        /// The main configuration of the OfficeCore
+        /// </summary>
+        public Configuration Configuration { get; set; } = new Configuration();
 
         /// <summary>
         /// Creates an empty office core with default values
         /// </summary>
         public OfficeCore() { }
 
+        /// <summary>
+        /// Try to compile the current Configuration to the <see cref="XML.Configuration"/>
+        /// </summary>
+        /// <returns>An <see cref="ErrorsList"/> with errors or nothing</returns>
         public ErrorsList[] Compile()
         {
             var cfg = new XML.Configuration()
             {
-                Updates = Updates.GetElement(),
-                Property = PropertyElements.GetElements(),
-                RemoveMSI = RemoveMSI.GetElement(),
-                Display = Display.GetElement(),
-                Info = string.IsNullOrEmpty(Description) ? null : new XML.Info() { Description = Description },
-                AppSettings = string.IsNullOrEmpty(CompanyName) ? null : new XML.AppSettings() { Setup = new List<XML.Setup>() { new XML.Setup() { Name = "Company", Value = CompanyName } } }
+                Updates = Configuration.Updates.GetElement(),
+                Property = Configuration.PropertyElements.GetElements(),
+                RemoveMSI = Configuration.RemoveMSI.GetElement(),
+                Display = Configuration.Display.GetElement(),
+                Info = string.IsNullOrEmpty(Configuration.Description) ? null : new XML.Info() { Description = Configuration.Description },
+                AppSettings = string.IsNullOrEmpty(Configuration.CompanyName) ? null : new XML.AppSettings() { Setup = new List<XML.Setup>() { new XML.Setup() { Name = "Company", Value = Configuration.CompanyName } } }
             };
 
-            var add = Add.GetElementOrErrors();
+            var add = Configuration.Add.GetElementOrErrors();
             if(add.Item1.Count() > 0 || add.Item2 == null)
             {
                 return add.Item1;
@@ -558,11 +601,15 @@ namespace MSFree4All.Core.Office
             else
             {
                 cfg.Add = add.Item2;
-                ConfigurationXML = cfg;
+                Configuration.ConfigurationXML = cfg;
                 return add.Item1;
             }
         }
-        
+
+        /// <summary>
+        /// Serialize the <see cref="XML.Configuration"/> in the Configuration to a <see cref="string"/>
+        /// </summary>
+        /// <returns>A XML <see cref="string"/></returns>
         public string SerializeLastCompiled()
         {
             var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
@@ -575,8 +622,143 @@ namespace MSFree4All.Core.Office
 
             using var stream = new StringWriter();
             using var writer = XmlWriter.Create(stream, settings);
-            serializer.Serialize(writer, ConfigurationXML, emptyNamespaces);
+            serializer.Serialize(writer, Configuration.ConfigurationXML, emptyNamespaces);
             return stream.ToString();
+        }
+
+        /// <summary>
+        /// Deserialize to the <see cref="XML.Configuration"/> in the Configuration from the <paramref name="xml"/> string
+        /// </summary>
+        /// <returns>An <see cref="StringErrorsList"/> with errors or nothing</returns>
+        /// <param name="mergeAnyWay">Try to create the configuration even there are errors</param>
+        /// <param name="xml">The XML string</param>
+        public StringErrorsList DeserializeFromString(string xml, bool mergeAnyWay = true)
+        {
+            var se = new XmlSerializer(typeof(XML.Configuration),new XmlRootAttribute("Configuration"));
+            #region Error Handlings
+            var Errors = new StringErrorsList("Errors");
+            se.UnknownAttribute += (s, e) =>
+            {
+                Errors.Add($"At '{e.LineNumber},{e.LinePosition}': \"{e.ExpectedAttributes.Replace(":","")}\" expected.");
+            };
+
+            se.UnknownElement += (s, e) =>
+            {
+                Errors.Add($"At '{e.LineNumber},{e.LinePosition}': \"{e.ExpectedElements.Replace(":","")}\" expected.");
+            };
+
+
+            se.UnknownNode += (s, e) =>
+            {
+                Errors.Add($"At '{e.LineNumber},{e.LinePosition}' : \"{e.Name}\" is unknown.");
+            };
+            #endregion
+            XML.Configuration Result = new XML.Configuration();
+            using (StringReader reader = new(xml))
+            {
+                try
+                {
+                    Result = (XML.Configuration)se.Deserialize(reader);
+                }
+                catch (Exception ex)
+                {
+                    Errors.Add("InvalidOperationException: " + ex.Message);
+                }
+            }
+            
+            if(Errors.Count > 0)
+            {
+                if (mergeAnyWay)
+                {
+                    if(Result == null)
+                    {
+                        Errors.Add("Failed to merge anyway. Couldn't read a valid XML configuration.");
+                        return Errors;
+                    }
+                    else
+                    {
+                        Configuration = CreateConfig(Result);
+                        this.ConfigurationUpdated(this,new EventArgs());
+                        return new StringErrorsList("Errors");
+                    }
+                }
+                else
+                {
+                    return Errors;
+                }
+            }
+            Configuration = CreateConfig(Result);
+            this.ConfigurationUpdated(this, new EventArgs());
+            return new StringErrorsList("Errors");
+
+        }
+
+        public Configuration CreateConfig(XML.Configuration XMLCfg)
+        {
+            return new Configuration
+            {
+                ConfigurationXML = XMLCfg,
+                Add = XMLCfg.Add != null ? new Add()
+                {
+                    AllowCdnFallback = XMLCfg.Add.AllowCdnFallback,
+                    ForceUpgrade = XMLCfg.Add.ForceUpgrade,
+                    Architecture = (XMLCfg.Add != null) && (XMLCfg.Add?.OfficeClientEdition == 32 || XMLCfg.Add.OfficeClientEdition == 64) ? (Architecture)XMLCfg.Add.OfficeClientEdition : Architecture.AutoDetect,
+                    DownloadPath = XMLCfg.Add?.DownloadPath.ToStringEvenNullOrWhiteSPace(),
+                    SourcePath = XMLCfg.Add.SourcePath.ToStringEvenNullOrWhiteSPace(),
+                    Version = XMLCfg.Add.Version.ToStringEvenNullOrWhiteSPace(),
+                    Channel = Enum.TryParse<Channel>(XMLCfg.Add?.Channel, true, out _) ? Enum.Parse<Channel>(XMLCfg.Add.Channel) : Channel.Current,
+                    Products = (XMLCfg.Add?.Product != null && XMLCfg.Add?.Product?.Count > 0) ? new ObservableCollection<OfficeProduct>(from t in XMLCfg.Add.Product select XMLProductToProduct(t)) : new ObservableCollection<OfficeProduct>()
+                } : new Add(),
+                Description = XMLCfg.Info != null ? XMLCfg.Info.Description.ToStringEvenNullOrWhiteSPace() : "",
+                Display = XMLCfg.Display != null ? new Display
+                    (
+                        !string.IsNullOrEmpty(XMLCfg.Display.Level) && Enum.TryParse<DisplayLevel>(XMLCfg.Display.Level, out _) ? Enum.Parse<DisplayLevel>(XMLCfg.Display.Level) : DisplayLevel.Full,
+                        XMLCfg.Display.AcceptEULA
+                    ) : new Display(DisplayLevel.Full, false),
+                CompanyName = XMLCfg.AppSettings != null && XMLCfg.AppSettings.Setup != null ? (from cp in XMLCfg.AppSettings.Setup where cp.Name == "Company" select cp.Value.ToStringEvenNullOrWhiteSPace()).FirstOrDefault().ToStringEvenNullOrWhiteSPace() : "",
+                RemoveMSI = XMLCfg.RemoveMSI != null ? new RemoveMSI
+                    (
+                        true,
+                        XMLCfg.RemoveMSI.IgnoreProduct != null && XMLCfg.RemoveMSI.IgnoreProduct.Count() > 0 ? (from ra in XMLCfg.RemoveMSI.IgnoreProduct select Enum.Parse<RemoveMSIApps>(ra.ID)).ToList() : new(),
+                        true
+                    ) : new RemoveMSI(false, new(), false),
+                Updates = XMLCfg.Updates != null ? new Updates()
+                {
+                    Enabled = XMLCfg.Updates.Enabled,
+                    Channel = !string.IsNullOrEmpty(XMLCfg.Updates.Channel) && Enum.TryParse<Channel>(XMLCfg.Updates.Channel, out _) ? Enum.Parse<Channel>(XMLCfg.Updates.Channel) : null,
+                    DeadLine = XMLCfg.Updates.DeadLine.ToStringEvenNullOrWhiteSPace(),
+                    TargetVersion = XMLCfg.Updates.TargetVersion.ToStringEvenNullOrWhiteSPace(),
+                    UpdatePath = XMLCfg.Updates.UpdatePath.ToStringEvenNullOrWhiteSPace()
+                } : new Updates() { Enabled = null },
+                PropertyElements = XMLCfg.Property != null && XMLCfg.Property.Count > 0 ? Properties.SetProperties(XMLCfg.Property) : new Properties()
+            };
+        }
+
+        private OfficeProduct XMLProductToProduct(XML.Product p)
+        {
+
+            if (p != null)
+            {
+                int langCount = 0;
+                int PlusLang()
+                {
+                    langCount++;
+                    return langCount;
+                }
+                OfficeProductIDs e;
+                return new OfficeProduct(OfficeProductsIDsCount++)
+                {
+                    ID = Enum.TryParse<OfficeProductIDs>(p.ID, true, out e) ? e : OfficeProductIDs.ProPlusRetail,
+                    PIDKEY = string.IsNullOrEmpty(p.PIDKEY) ? p.PIDKEY : "",
+                    ExcludeApps = p.ExcludeApp != null && p.ExcludeApp.Count > 0 ? (from a in p.ExcludeApp select Enum.Parse<OfficeApps>(a.ID)).ToList() : new(),
+                    Languages = new ObservableCollection<OfficeLanguage>(from l in p.Language select new OfficeLanguage(PlusLang()) { Culture = l.ID, DisplayName = (from cl in Consts.Languages where cl.Item2 == l.ID select cl.Item1).FirstOrDefault() }),
+                    LanguagesIDsCount = langCount
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
 
     }

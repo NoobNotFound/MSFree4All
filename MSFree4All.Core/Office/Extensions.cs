@@ -241,5 +241,15 @@ namespace MSFree4All.Core.Office
         {
             return b.ToString().ToUpper();
         }
+
+        /// <summary>
+        /// Converts the <paramref name="b"/> to a <see cref="string"/> even if it is null or whitespace to a <see cref="string.Empty"/>
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns><see cref="string"/></returns>
+        public static string ToStringEvenNullOrWhiteSPace(this string? b)
+        {
+            return string.IsNullOrWhiteSpace(b) || string.IsNullOrEmpty(b) ? "" : b.ToString();
+        }
     }
 }

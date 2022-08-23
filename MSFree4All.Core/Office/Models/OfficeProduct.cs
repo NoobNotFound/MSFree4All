@@ -19,10 +19,7 @@ namespace MSFree4All.Core.Office.Models
         public ObservableCollection<OfficeLanguage> Languages { get; set; } = new ObservableCollection<OfficeLanguage>();
         public string Version { get { return ID.ConverToVer().ToString(); } }
         public string DisplayName { get { return ID.ConvertToString(); } }
-        private void Update()
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
-        }
+        public int LanguagesIDsCount { get; set; } = 0;
         public OfficeProduct(int count) { this.Count =count; }
     }
     public class OfficeLanguage : INotifyPropertyChanged

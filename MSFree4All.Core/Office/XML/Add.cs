@@ -5,7 +5,7 @@ namespace MSFree4All.Core.Office.XML{
 [XmlRoot(ElementName="Add")]
 public class Add { 
 
-	[XmlElement(ElementName="Product")] 
+	[XmlElement(Namespace = "",ElementName="Product")] 
 	public List<Product> Product { get; set; } 
 
 	[XmlAttribute(AttributeName="OfficeClientEdition")] 

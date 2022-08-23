@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -19,8 +20,10 @@ namespace MSFree4All.UserControls
     /// <summary>
     /// A strings list control with bullets.
     /// </summary>
-    public sealed partial class BulletsList : ItemsControl
+    public sealed partial class BulletsList : ItemsControl, INotifyPropertyChanged
     {
+        private bool wordWrap = true;
+        public bool WordWrap { get { return wordWrap; } set { wordWrap = value;this.PropertyChanged(this, new PropertyChangedEventArgs(nameof(WordWrap))); } }
         public BulletsList()
         {
 
@@ -30,5 +33,31 @@ namespace MSFree4All.UserControls
             this.InitializeComponent();
             this.ItemsSource = strings;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+    }
+
+    public class BulletsListItemTemplateSelector : DataTemplateSelector
+    {
+        public bool WordWrap { get; set; } = true;
+        public DataTemplate WrappedText { get; set; }
+        public DataTemplate NoWrapText { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object item)
+        {
+            if (WordWrap)
+                return WrappedText;
+            else
+                return NoWrapText;
+        }
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            if (WordWrap)
+                return WrappedText;
+            else
+                return NoWrapText;
+        }
+
     }
 }

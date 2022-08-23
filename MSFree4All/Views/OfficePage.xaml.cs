@@ -19,6 +19,8 @@ using MSFree4All.Core.Office.Enums;
 using Microsoft.UI.Text;
 using CommunityToolkit.WinUI.UI.Controls;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage.Pickers;
+using Windows.Storage;
 
 namespace MSFree4All.Views
 {
@@ -35,15 +37,15 @@ namespace MSFree4All.Views
         /// </summary>
         public void Initialize()
         {
-            listProducts.ItemsSource = MainCore.Office.OfficeCore.Add.Products;
+            listProducts.ItemsSource = MainCore.Office.OfficeCore.Configuration.Add.Products;
             UpdateRemoveMSIStates();
 
-            tglCDNFallback.IsOn = MainCore.Office.OfficeCore.Add.AllowCdnFallback;
-            tglDisplay.IsOn = MainCore.Office.OfficeCore.Display.Level == DisplayLevel.None;
-            tglForceAppsShutDown.IsOn = MainCore.Office.OfficeCore.PropertyElements.FORCEAPPSHUTDOWN;
-            tglPicIcons.IsOn = MainCore.Office.OfficeCore.PropertyElements.PinIconsToTaskbar;
-            tglAutoAct.IsOn = MainCore.Office.OfficeCore.PropertyElements.AUTOACTIVATE;
-            switch (MainCore.Office.OfficeCore.Add.Architecture)
+            tglCDNFallback.IsOn = MainCore.Office.OfficeCore.Configuration.Add.AllowCdnFallback;
+            tglDisplay.IsOn = MainCore.Office.OfficeCore.Configuration.Display.Level == DisplayLevel.None;
+            tglForceAppsShutDown.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN;
+            tglPicIcons.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar;
+            tglAutoAct.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE;
+            switch (MainCore.Office.OfficeCore.Configuration.Add.Architecture)
             {
                 case Architecture.x64:
                     cmbxArch.SelectedIndex = 0;
@@ -57,23 +59,23 @@ namespace MSFree4All.Views
                     cmbxArch.SelectedIndex = 2;
                     break;
             }
-            cmbxLicenseType.SelectedIndex = ((int)MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.Type);
-            chkBxSCLCacheOverride.IsChecked = MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverride;
-            txtSCLCacheOverrideDir.Text = MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory;
+            cmbxLicenseType.SelectedIndex = ((int)MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type);
+            chkBxSCLCacheOverride.IsChecked = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride;
+            txtSCLCacheOverrideDir.Text = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory;
             UpdateLicenseUI();
 
-            cmbxChannel.SelectedIndex = ((int)MainCore.Office.OfficeCore.Add.Channel);
-            txtDescription.Text = MainCore.Office.OfficeCore.Description;
-            txtOrgName.Text = MainCore.Office.OfficeCore.CompanyName;
-            txtFullVer.Text = MainCore.Office.OfficeCore.Add.Version;
-            txtDownloadPath.Text = MainCore.Office.OfficeCore.Add.DownloadPath;
+            cmbxChannel.SelectedIndex = ((int)MainCore.Office.OfficeCore.Configuration.Add.Channel);
+            txtDescription.Text = MainCore.Office.OfficeCore.Configuration.Description;
+            txtOrgName.Text = MainCore.Office.OfficeCore.Configuration.CompanyName;
+            txtFullVer.Text = MainCore.Office.OfficeCore.Configuration.Add.Version;
+            txtDownloadPath.Text = MainCore.Office.OfficeCore.Configuration.Add.DownloadPath;
 
-            cmbxUpdates.SelectedIndex = MainCore.Office.OfficeCore.Updates.Enabled.ToInt();
-            cmbxUpdateChannel.SelectedIndex = MainCore.Office.OfficeCore.Updates.Channel == null ? 8 : ((int)MainCore.Office.OfficeCore.Updates.Channel.Value);
+            cmbxUpdates.SelectedIndex = MainCore.Office.OfficeCore.Configuration.Updates.Enabled.ToInt();
+            cmbxUpdateChannel.SelectedIndex = MainCore.Office.OfficeCore.Configuration.Updates.Channel == null ? 8 : ((int)MainCore.Office.OfficeCore.Configuration.Updates.Channel.Value);
 
-            txtUpdatesDeadline.Text = MainCore.Office.OfficeCore.Updates.DeadLine;
-            txtUpdateVer.Text = MainCore.Office.OfficeCore.Updates.TargetVersion;
-            txtUpdatePath.Text = MainCore.Office.OfficeCore.Updates.UpdatePath;
+            txtUpdatesDeadline.Text = MainCore.Office.OfficeCore.Configuration.Updates.DeadLine;
+            txtUpdateVer.Text = MainCore.Office.OfficeCore.Configuration.Updates.TargetVersion;
+            txtUpdatePath.Text = MainCore.Office.OfficeCore.Configuration.Updates.UpdatePath;
             UpdateUpdatesUI();
         }
 
@@ -81,11 +83,11 @@ namespace MSFree4All.Views
         private void mitRemove_Click(object sender, RoutedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == int.Parse(((MenuFlyoutItem)sender).Tag.ToString()))
                 {
-                    MainCore.Office.OfficeCore.Add.Products.Remove(item);
+                    MainCore.Office.OfficeCore.Configuration.Add.Products.Remove(item);
                     return;
                 }
             }
@@ -105,9 +107,9 @@ namespace MSFree4All.Views
 
         private void btnAddProduct_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeProductsCount++;
-            MainCore.Office.OfficeCore.Add.Products.Add(new Core.Office.Models.OfficeProduct(MainCore.Office.OfficeProductsCount));
-            MainCore.Office.SelectedProductCount = MainCore.Office.OfficeProductsCount;
+            MainCore.Office.OfficeCore.OfficeProductsIDsCount++;
+            MainCore.Office.OfficeCore.Configuration.Add.Products.Add(new Core.Office.Models.OfficeProduct(MainCore.Office.OfficeCore.OfficeProductsIDsCount));
+            MainCore.Office.SelectedProductCount = MainCore.Office.OfficeCore.OfficeProductsIDsCount;
             OfficeMainPage.MainFrame.Navigate(typeof(OfficeProductEditor), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromRight });
         }
         #endregion
@@ -115,26 +117,26 @@ namespace MSFree4All.Views
         #region RemoveMSI
         private void chkbxMSIRemove_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.RemoveMSI.SetValues((bool)chkbxMSIRemove.IsChecked);
+            MainCore.Office.OfficeCore.Configuration.RemoveMSI.SetValues((bool)chkbxMSIRemove.IsChecked);
             UpdateRemoveMSIStates();
         }
         public void UpdateRemoveMSIStates()
         {
 
-            chkbxForceUpgrade.IsChecked = MainCore.Office.OfficeCore.Add.ForceUpgrade;
-            chkbxMSIRemove.IsChecked = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSILang.IsChecked = MainCore.Office.OfficeCore.RemoveMSI.IsSameLang;
+            chkbxForceUpgrade.IsChecked = MainCore.Office.OfficeCore.Configuration.Add.ForceUpgrade;
+            chkbxMSIRemove.IsChecked = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSILang.IsChecked = MainCore.Office.OfficeCore.Configuration.RemoveMSI.IsSameLang;
 
-            chkbxMSILang.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIVisPro.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIVisStd.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIPrjPro.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIPrjStd.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIInfoPath.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSIInfoPathR.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
-            chkbxMSISharePoint.IsEnabled = MainCore.Office.OfficeCore.RemoveMSI.Value;
+            chkbxMSILang.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIVisPro.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIVisStd.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIPrjPro.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIPrjStd.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIInfoPath.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIInfoPathR.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSISharePoint.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
 
-            foreach (var item in MainCore.Office.OfficeCore.RemoveMSI.Apps)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.RemoveMSI.Apps)
             {
                 foreach (var Element in pnlRemMSIApps.Children)
                 {
@@ -154,7 +156,7 @@ namespace MSFree4All.Views
 
         private void chkbxMSILang_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.RemoveMSI.IsSameLang = (bool)chkbxMSILang.IsChecked;
+            MainCore.Office.OfficeCore.Configuration.RemoveMSI.IsSameLang = (bool)chkbxMSILang.IsChecked;
         }
 
         private void chkbxMSIApp_Click(object sender, RoutedEventArgs e)
@@ -162,23 +164,23 @@ namespace MSFree4All.Views
             var s = (CheckBox)sender;
             if (s.IsChecked == true)
             {
-                MainCore.Office.OfficeCore.RemoveMSI.AddRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
+                MainCore.Office.OfficeCore.Configuration.RemoveMSI.AddRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
             }
             else
             {
-                MainCore.Office.OfficeCore.RemoveMSI.RemoveRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
+                MainCore.Office.OfficeCore.Configuration.RemoveMSI.RemoveRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
             }
         }
 
         private void chkbxForceUpgrade_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.ForceUpgrade = (bool)chkbxForceUpgrade.IsChecked;
+            MainCore.Office.OfficeCore.Configuration.Add.ForceUpgrade = (bool)chkbxForceUpgrade.IsChecked;
         }
         #endregion
 
         private void tglCDNFallback_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.AllowCdnFallback = tglCDNFallback.IsOn;
+            MainCore.Office.OfficeCore.Configuration.Add.AllowCdnFallback = tglCDNFallback.IsOn;
         }
 
         private void cmbxArch_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -186,37 +188,37 @@ namespace MSFree4All.Views
             switch (cmbxArch.SelectedItem.ToString())
             {
                 case "64 Bit":
-                    MainCore.Office.OfficeCore.Add.Architecture = Architecture.x64;
+                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.x64;
                     break;
 
                 case "32 Bit":
-                    MainCore.Office.OfficeCore.Add.Architecture = Architecture.x86;
+                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.x86;
                     break;
 
                 case "Match OS":
-                    MainCore.Office.OfficeCore.Add.Architecture = Architecture.AutoDetect;
+                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.AutoDetect;
                     break;
             }
         }
 
         private void tglDisplay_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Display.Level = tglDisplay.IsOn ? DisplayLevel.None : DisplayLevel.Full;
+            MainCore.Office.OfficeCore.Configuration.Display.Level = tglDisplay.IsOn ? DisplayLevel.None : DisplayLevel.Full;
         }
 
         private void tglForceAppsShutDown_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.PropertyElements.FORCEAPPSHUTDOWN = tglForceAppsShutDown.IsOn;
+            MainCore.Office.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN = tglForceAppsShutDown.IsOn;
         }
 
         private void tglPicIcons_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.PropertyElements.PinIconsToTaskbar = tglPicIcons.IsOn;
+            MainCore.Office.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar = tglPicIcons.IsOn;
         }
 
         private void tglAutoAct_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.PropertyElements.AUTOACTIVATE = tglAutoAct.IsOn;
+            MainCore.Office.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE = tglAutoAct.IsOn;
         }
 
         #region Licensing
@@ -225,20 +227,20 @@ namespace MSFree4All.Views
             switch (cmbxLicenseType.SelectedItem.ToString())
             {
                 case "User Based":
-                    MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.Type = LicensingType.UserBased;
+                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.UserBased;
                     break;
                 case "Device Based":
-                    MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.Type = LicensingType.DeviceBased;
+                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.DeviceBased;
                     break;
                 case "Shared Computer":
-                    MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.Type = LicensingType.SharedComputer;
+                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.SharedComputer;
                     break;
             }
             UpdateLicenseUI();
         }
         private void UpdateLicenseUI()
         {
-            bool isSCL = MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.Type == LicensingType.SharedComputer;
+            bool isSCL = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type == LicensingType.SharedComputer;
             chkBxSCLCacheOverride.IsEnabled = isSCL;
             txtSCLCacheOverrideDir.IsEnabled = isSCL && chkBxSCLCacheOverride.IsChecked == true;
 
@@ -246,82 +248,82 @@ namespace MSFree4All.Views
 
         private void chkBxSCLCacheOverride_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverride = chkBxSCLCacheOverride.IsChecked == true;
+            MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride = chkBxSCLCacheOverride.IsChecked == true;
             UpdateLicenseUI();
         }
 
         private void txtSCLCacheOverrideDir_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory = txtSCLCacheOverrideDir.Text;
+            MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory = txtSCLCacheOverrideDir.Text;
         }
         #endregion
 
         private void cmbxChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.Channel = Enum.Parse<Channel>((cmbxChannel.SelectedItem as ComboBoxItem).Tag.ToString());
+            MainCore.Office.OfficeCore.Configuration.Add.Channel = Enum.Parse<Channel>((cmbxChannel.SelectedItem as ComboBoxItem).Tag.ToString());
         }
 
         #region Information
         private void txtOrgName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.CompanyName = txtOrgName.Text;
+            MainCore.Office.OfficeCore.Configuration.CompanyName = txtOrgName.Text;
         }
 
         private void txtDescription_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Description = txtDescription.Text;
+            MainCore.Office.OfficeCore.Configuration.Description = txtDescription.Text;
         }
         #endregion
 
         private void txtFullVer_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.Version = txtFullVer.Text;
+            MainCore.Office.OfficeCore.Configuration.Add.Version = txtFullVer.Text;
         }
 
         private void txtDownloadPath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.DownloadPath = txtDownloadPath.Text;
+            MainCore.Office.OfficeCore.Configuration.Add.DownloadPath = txtDownloadPath.Text;
         }
 
         private void txtSourcePath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Add.SourcePath = txtSourcePath.Text;
+            MainCore.Office.OfficeCore.Configuration.Add.SourcePath = txtSourcePath.Text;
         }
 
         #region Updates
         private void cmbxUpdates_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Updates.Enabled = cmbxUpdates.SelectedIndex.ToBool();
+            MainCore.Office.OfficeCore.Configuration.Updates.Enabled = cmbxUpdates.SelectedIndex.ToBool();
             UpdateUpdatesUI();
         }
 
         private void UpdateUpdatesUI()
         {
-            txtUpdatePath.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
-            txtUpdatesDeadline.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
-            txtUpdateVer.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
-            cmbxUpdateChannel.IsEnabled = MainCore.Office.OfficeCore.Updates.Enabled == true;
+            txtUpdatePath.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
+            txtUpdatesDeadline.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
+            txtUpdateVer.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
+            cmbxUpdateChannel.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
         }
 
         private void cmbxUpdateChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var tag = ((ComboBoxItem)cmbxUpdateChannel.SelectedItem).Tag;
-            MainCore.Office.OfficeCore.Updates.Channel = tag == null ? null : Enum.Parse<Channel>(tag.ToString());
+            MainCore.Office.OfficeCore.Configuration.Updates.Channel = tag == null ? null : Enum.Parse<Channel>(tag.ToString());
         }
 
         private void txtUpdatePath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Updates.UpdatePath = txtUpdatePath.Text;
+            MainCore.Office.OfficeCore.Configuration.Updates.UpdatePath = txtUpdatePath.Text;
         }
 
         private void txtUpdateVer_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Updates.TargetVersion = txtUpdateVer.Text;
+            MainCore.Office.OfficeCore.Configuration.Updates.TargetVersion = txtUpdateVer.Text;
         }
 
         private void txtUpdatesDeadline_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Updates.DeadLine = txtUpdatesDeadline.Text;
+            MainCore.Office.OfficeCore.Configuration.Updates.DeadLine = txtUpdatesDeadline.Text;
         }
         #endregion
 
@@ -354,20 +356,65 @@ namespace MSFree4All.Views
             }
         }
 
-        private void btnLoadXML_Click(object sender, RoutedEventArgs e)
+        private async void btnLoadXML_Click(object sender, RoutedEventArgs e)
         {
-            var r = MainCore.Office.OfficeCore.DeserializeFromString("<configuration>\n<Add name=\"\" MigrateArch=\"True\" />\n</configuration>");
-            var s = new StackPanel();
-            foreach (var item in r)
+            var fop = new FileOpenPicker();
+            fop.FileTypeFilter.Add(".xml");
+            WinRT.Interop.InitializeWithWindow.Initialize(fop, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
+            var f = await fop.PickSingleFileAsync();
+            if (f != null)
             {
-                s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
-                s.Children.Add(new UserControls.BulletsList(item));
+                var str = await FileIO.ReadTextAsync(f);
+                var r = MainCore.Office.OfficeCore.DeserializeFromString(str,false);
+                if (r.Count > 0)
+                {
+                    var s = new StackPanel();
+                    s.Children.Add(new UserControls.BulletsList(r) { WordWrap = false });
+                    try
+                    {
+                        var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
+                        d.PrimaryButtonText = "Continue Anyaway";
+                        d.PrimaryButtonClick += (s, e) => MainCore.Office.OfficeCore.DeserializeFromString(str, true);
+                        _ = d.ShowAsync();
+                    }
+                    catch { }
+                }
             }
-            try
+            else
             {
-                _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
+
             }
-            catch { }
+        }
+
+        private async void btnSaveXML_Click(object sender, RoutedEventArgs e)
+        {
+            var r = MainCore.Office.OfficeCore.Compile();
+            if (r.Count() > 0)
+            {
+                var s = new StackPanel();
+                foreach (var item in r)
+                {
+                    s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
+                    var li = from t in item select t.ToReadableString();
+                    s.Children.Add(new UserControls.BulletsList(li));
+                }
+                try
+                {
+                    _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
+                }
+                catch { }
+            }
+            else
+            {
+                var fsp = new FileSavePicker();
+                fsp.FileTypeChoices.Add("XML Configuration", new List<string> { ".xml" });
+                WinRT.Interop.InitializeWithWindow.Initialize(fsp, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
+                var f = await fsp.PickSaveFileAsync();
+                if (f != null)
+                {
+                    await FileIO.WriteTextAsync(f, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                }
+            }
         }
     }
 }

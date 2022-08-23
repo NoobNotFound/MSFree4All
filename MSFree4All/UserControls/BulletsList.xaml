@@ -10,9 +10,18 @@
     <ItemsControl.Resources>
         <converters:ListToBulletsConverter x:Key="ListToBlts"/>
     </ItemsControl.Resources>
-    <ItemsControl.ItemTemplate>
-        <DataTemplate>
-            <TextBlock TextWrapping="WrapWholeWords" Text="{Binding Converter={StaticResource ListToBlts}}" />
-        </DataTemplate>
-    </ItemsControl.ItemTemplate>
+    <ItemsControl.ItemTemplateSelector>
+        <local:BulletsListItemTemplateSelector WordWrap="{x:Bind WordWrap,Mode=OneWay}">
+            <local:BulletsListItemTemplateSelector.WrappedText>
+                <DataTemplate>
+                    <TextBlock TextWrapping="WrapWholeWords" Text="{Binding Converter={StaticResource ListToBlts}}" />
+                </DataTemplate>
+            </local:BulletsListItemTemplateSelector.WrappedText>
+            <local:BulletsListItemTemplateSelector.NoWrapText>
+                <DataTemplate>
+                    <TextBlock TextWrapping="NoWrap" Text="{Binding Converter={StaticResource ListToBlts}}" />
+                </DataTemplate>
+            </local:BulletsListItemTemplateSelector.NoWrapText>
+        </local:BulletsListItemTemplateSelector>
+    </ItemsControl.ItemTemplateSelector>
 </ItemsControl>

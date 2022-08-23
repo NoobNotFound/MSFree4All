@@ -13,7 +13,6 @@ namespace MSFree4All.Helpers
         public static class Office
         {
             public static OfficeCore OfficeCore { get; set; } = new OfficeCore();
-            public static int OfficeProductsCount = 0;
             public static int SelectedProductCount = 0;
         }
     }

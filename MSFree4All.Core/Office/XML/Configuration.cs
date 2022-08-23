@@ -3,29 +3,29 @@ using System.Collections.Generic;
 namespace MSFree4All.Core.Office.XML
 {
 
-	[XmlRoot(ElementName = "Configuration")]
+	[XmlRoot(Namespace = "", ElementName = "Configuration")]
 	public class Configuration
 	{
 
-		[XmlElement(ElementName = "Info")]
+		[XmlElement(Namespace = "",ElementName = "Info")]
 		public Info Info { get; set; }
 
-		[XmlElement(ElementName = "Add")]
+		[XmlElement(Namespace = "",ElementName = "Add")]
 		public Add Add { get; set; }
 
-		[XmlElement(ElementName = "Display")]
+		[XmlElement(Namespace = "",ElementName = "Display")]
 		public Display Display { get; set; }
 
-		[XmlElement(ElementName = "Property")]
+		[XmlElement(Namespace = "",ElementName = "Property")]
 		public List<Property> Property { get; set; }
 
-		[XmlElement(ElementName = "Updates")]
+		[XmlElement(Namespace = "",ElementName = "Updates")]
 		public Updates Updates { get; set; }
 
-		[XmlElement(ElementName = "RemoveMSI")]
+		[XmlElement(Namespace = "",ElementName = "RemoveMSI")]
 		public RemoveMSI RemoveMSI { get; set; }
 
-		[XmlElement(ElementName = "AppSettings")]
+		[XmlElement(Namespace = "",ElementName = "AppSettings")]
 		public AppSettings AppSettings { get; set; }
 
 		public static Configuration CreateNew()

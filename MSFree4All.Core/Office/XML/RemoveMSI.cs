@@ -5,7 +5,7 @@ namespace MSFree4All.Core.Office.XML{
 [XmlRoot(ElementName="RemoveMSI")]
 public class RemoveMSI { 
 
-	[XmlElement(ElementName="IgnoreProduct")] 
+	[XmlElement(Namespace = "",ElementName="IgnoreProduct")] 
 	public List<IgnoreProduct> IgnoreProduct { get; set; } 
 }
 

@@ -36,6 +36,7 @@ namespace MSFree4All.Views
             {
                 frame = MainFrame;
             }
+            Helpers.MainCore.Office.OfficeCore.ConfigurationUpdated += (s,e) => MainFrame.Navigate(typeof(OfficePage), null, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
         }
     }
 }

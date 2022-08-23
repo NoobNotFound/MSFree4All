@@ -306,7 +306,7 @@
                         <FontIcon Glyph="&#xe890;"/>
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton ToolTipService.ToolTip="Save Configuration.xml" Label="Save Config">
+                <AppBarButton ToolTipService.ToolTip="Save Configuration.xml" x:Name="btnSaveXML" Click="btnSaveXML_Click" Label="Save Config">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe78c;"/>
                     </AppBarButton.Icon>

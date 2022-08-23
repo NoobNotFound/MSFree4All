@@ -7,10 +7,10 @@ namespace MSFree4All.Core.Office.XML
 	public class Product
 	{
 
-		[XmlElement(ElementName = "Language")]
+		[XmlElement(Namespace = "",ElementName = "Language")]
 		public List<Language> Language { get; set; }
 
-		[XmlElement(ElementName = "ExcludeApp")]
+		[XmlElement(Namespace = "",ElementName = "ExcludeApp")]
 		public List<ExcludeApp> ExcludeApp { get; set; }
 
 		[XmlAttribute(AttributeName = "ID")]

@@ -29,12 +29,11 @@ namespace MSFree4All.Views
     public sealed partial class OfficeProductEditor : Page
     {
         public int Count;
-        int langCount;
         public OfficeProductEditor()
         {
             this.InitializeComponent();
             this.Count = MainCore.Office.SelectedProductCount;
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -54,7 +53,7 @@ namespace MSFree4All.Views
         private void mitChooseProduct_Click(object sender, RoutedEventArgs e)
         {
             var s = ((MenuFlyoutItem)sender);
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if(item.Count == Count)
                 {
@@ -68,12 +67,12 @@ namespace MSFree4All.Views
 
         private void btnAddLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
-                    langCount++;
-                    item.Languages.Add(new OfficeLanguage(langCount));
+                    item.LanguagesIDsCount++;
+                    item.Languages.Add(new OfficeLanguage(item.LanguagesIDsCount));
                     return;
                 }
             }
@@ -110,7 +109,7 @@ namespace MSFree4All.Views
 
         private void txtLang_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -130,7 +129,7 @@ namespace MSFree4All.Views
 
         private void btnRemoveLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -148,11 +147,11 @@ namespace MSFree4All.Views
 
         private void btnDel_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
-                    MainCore.Office.OfficeCore.Add.Products.Remove(item);
+                    MainCore.Office.OfficeCore.Configuration.Add.Products.Remove(item);
                     OfficeMainPage.MainFrame.Navigate(typeof(OfficePage),null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
                     return;
                 }
@@ -161,7 +160,7 @@ namespace MSFree4All.Views
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            var errors = MainCore.Office.OfficeCore.Add.CheckProductErrors(Count);
+            var errors = MainCore.Office.OfficeCore.Configuration.Add.CheckProductErrors(Count);
             if (errors.Count() == 0)
             {
                 OfficeMainPage.MainFrame.Navigate(typeof(OfficePage), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
@@ -181,7 +180,7 @@ namespace MSFree4All.Views
         private void txtPIDKEY_TextChanged(object sender, TextChangedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Add.Products)
+            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {

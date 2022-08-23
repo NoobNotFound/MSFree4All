@@ -709,7 +709,7 @@ namespace MSFree4All.Core.Office
                     Channel = Enum.TryParse<Channel>(XMLCfg.Add?.Channel, true, out _) ? Enum.Parse<Channel>(XMLCfg.Add.Channel) : Channel.Current,
                     Products = (XMLCfg.Add?.Product != null && XMLCfg.Add?.Product?.Count > 0) ? new ObservableCollection<OfficeProduct>(from t in XMLCfg.Add.Product select XMLProductToProduct(t)) : new ObservableCollection<OfficeProduct>()
                 } : new Add(),
-                Description = XMLCfg.Info != null && string.IsNullOrEmpty(XMLCfg.Info.Description) ? XMLCfg.Info.Description : "",
+                Description = XMLCfg.Info != null ? XMLCfg.Info.Description.ToStringEvenNullOrWhiteSPace() : "",
                 Display = XMLCfg.Display != null ? new Display
                     (
                         !string.IsNullOrEmpty(XMLCfg.Display.Level) && Enum.TryParse<DisplayLevel>(XMLCfg.Display.Level, out _) ? Enum.Parse<DisplayLevel>(XMLCfg.Display.Level) : DisplayLevel.Full,

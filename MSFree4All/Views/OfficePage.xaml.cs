@@ -349,9 +349,11 @@ namespace MSFree4All.Views
             {
                 var dataPackage = new DataPackage();
                 dataPackage.SetText(MainCore.Office.OfficeCore.SerializeLastCompiled());
-                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Primary);
+                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Close);
                 d.PrimaryButtonText = "Copy to clipboard";
                 d.PrimaryButtonClick += (_,_) => Clipboard.SetContent(dataPackage);
+                d.SecondaryButtonText = "Save";
+                d.SecondaryButtonClick += (_, _) => btnSaveXML_Click(null,null);
                 _ = d.ShowAsync();
             }
         }

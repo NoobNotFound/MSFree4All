@@ -305,16 +305,25 @@
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe890;"/>
                     </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="P"/>
+                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton ToolTipService.ToolTip="Save Configuration.xml" x:Name="btnSaveXML" Click="btnSaveXML_Click" Label="Save Config">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe78c;"/>
                     </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton x:Name="btnLoadXML" Click="btnLoadXML_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe8e5;"/>
                     </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="O"/>
+                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar>
         </Grid>

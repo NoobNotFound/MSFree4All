@@ -5,7 +5,12 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSFree4All", "MSFree4All\MSFree4All.csproj", "{F363F5C1-604D-45D4-B291-F057F31A0A93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSFree4All.Core", "MSFree4All.Core\MSFree4All.Core.csproj", "{326CF390-CA06-4722-9D80-3B3A114C9A18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSFree4All.Core", "MSFree4All.Core\MSFree4All.Core.csproj", "{326CF390-CA06-4722-9D80-3B3A114C9A18}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27684190-5EBC-4851-991B-E8878AED3B48}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

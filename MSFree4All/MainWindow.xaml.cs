@@ -24,6 +24,7 @@ using System.ComponentModel;
 using PInvoke;
 using Windows.ApplicationModel;
 using WinRT.Interop;
+using WinUIEx;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -32,11 +33,12 @@ namespace MSFree4All
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class MainWindow : WindowEx
     {
         public static Views.OfficeMainPage OfficePage = new();
         public static Frame RootMainFrame;
-
+        public static UserControls.NotificationBar NotificationBar;
+        public static UserControls.LogsView LogsView = new();
         public static bool DisableGoBack = false;
         public static void NavigateFrame(Type pageType)
         {
@@ -44,66 +46,50 @@ namespace MSFree4All
         }
         public MainWindow()
         {
+
             Title = "MSFree4all";
             this.InitializeComponent();
-            Titlebar();
+            TitleBarHelper.SetExtendedTitleBar(this, AppTitleBar);
             RootMainFrame = MainFrame;
+            NotificationBar = NotificationsBar;
             RootMainFrame.Navigated += RootMainFrame_Navigated;
             RootMainFrame.Content = OfficePage;
-            navView.SelectedItem = mitDeployOffice;
+            navView.SelectedItem = NitDeployOffice;
             this.Activated += OnWindowCreate;
+            this.MinHeight = 400;
+            this.MinWidth = 600;
+            InitializeLogs();
+            
+            this.Closed += (_, _) => Application.Current.Exit();
         }
-        void Titlebar()
+        private void InitializeLogs()
         {
-            FrameworkElement RootUI = (FrameworkElement)Content;
-            if (AppWindowTitleBar.IsCustomizationSupported())
+            Core.Util.ProcessUtil.ProcessAdded += (id) => LogsView.AddProgressLog(Core.Util.ProcessUtil.GetProcessStartInfo(id).FileName, IsIndeterminate: true,UniqueThings:id);
+
+            Core.Util.ProcessUtil.ProcessRemoved += (id) =>
             {
-                AppWindow AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(this)));
-                var titlebar = AppWindow.TitleBar;
-                titlebar.ExtendsContentIntoTitleBar = true;
-                void SetColor(ElementTheme acualTheme)
+                try
                 {
-                    titlebar.ButtonHoverBackgroundColor = App.LayerFillColorDefaultColor;
-                    titlebar.ButtonBackgroundColor = titlebar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                    switch (acualTheme)
+                    this.DispatcherQueue.TryEnqueue(() =>
                     {
-                        case ElementTheme.Dark:
-                            titlebar.ButtonForegroundColor = Colors.White;
-                            titlebar.ButtonHoverForegroundColor = Colors.Silver;
-                            titlebar.ButtonPressedForegroundColor = Colors.Silver;
-                            break;
-                        case ElementTheme.Light:
-                            titlebar.ButtonForegroundColor = Colors.Black;
-                            titlebar.ButtonHoverForegroundColor = Colors.DarkGray;
-                            titlebar.ButtonPressedForegroundColor = Colors.DarkGray;
-                            break;
-                    }
+                        var logID = LogsView.SearchByUniqueThingsToString(id.ToString()).FirstOrDefault();
+                        LogsView.ChangeProgress(logID, 100);
+                        LogsView.ChangeIndeterminate(logID, false);
+                        LogsView.Refresh();
+                    });
                 }
-                RootUI.ActualThemeChanged += (s, _) => SetColor(s.ActualTheme);
-                SetTitleBar(AppTitleBar);
-                SetColor(RootUI.ActualTheme);
-            }
-            else
-            {
-                ExtendsContentIntoTitleBar = true;
-                SetTitleBar(AppTitleBar);
-            }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
+            };
         }
         private void OnWindowCreate(object _, WindowActivatedEventArgs _1)
         {
-            var icon = User32.LoadImage(
-                hInst: IntPtr.Zero,
-                name: $@"{Package.Current.InstalledLocation.Path}\Assets\MSFree4All.ico".ToCharArray(),
-                type: User32.ImageType.IMAGE_ICON,
-                cx: 0,
-                cy: 0,
-                fuLoad: User32.LoadImageFlags.LR_LOADFROMFILE | User32.LoadImageFlags.LR_DEFAULTSIZE | User32.LoadImageFlags.LR_SHARED
-            );
-            var Handle = WindowNative.GetWindowHandle(this);
-            User32.SendMessage(Handle, User32.WindowMessage.WM_SETICON, (IntPtr)1, icon);
-            User32.SendMessage(Handle, User32.WindowMessage.WM_SETICON, (IntPtr)0, icon);
+            IconHelper.SetIcon(this);
             Activated -= OnWindowCreate;
         }
+        
         public void TriggerTitleBarRepaint()
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -129,27 +115,33 @@ namespace MSFree4All
         public void UpdateNavView()
         {
             var t = RootMainFrame.Content.GetType();
-            string h = "";
-            Thickness margin;
+            var tp = new NavViewHeaderTemplate();
             if (t.Equals(typeof(Views.OfficeMainPage)))
             {
-                h = "Office";
+                tp.HeaderText = "Office";
+            }
+            else if (t.Equals(typeof(UserControls.LogsView)))
+            {
+                tp.HeaderText = "Logs";
+                tp.CustomButtonPadding = new Thickness(7);
+                tp.CustomButtonText = new FontIcon { Glyph = "\xe8a7" };
             }
             else
             {
-                h = ((NavViewHeaderTemplate)navView.Header).HeaderText;
+                tp.HeaderText = ((NavViewHeaderTemplate)navView.Header).HeaderText;
             }
             if(navView.DisplayMode == NavigationViewDisplayMode.Minimal)
             {
                 navView.IsPaneToggleButtonVisible = true;
-                margin = new Thickness(35, -40, 0, 0);
+                tp.HeaderMargin = new Thickness(35, -40, 0, 0);
             }
             else
             {
                 navView.IsPaneToggleButtonVisible = false;
-                margin = new Thickness(-30, -20, 0, 10);
+                tp.HeaderMargin = new Thickness(-30, -20, 0, 10);
             }
-            navView.Header = new NavViewHeaderTemplate { HeaderMargin = margin , HeaderText = h};
+            navView.Header = tp;
+
         }
         private void navView_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
         {
@@ -166,22 +158,106 @@ namespace MSFree4All
             {
                 if(navView.SelectedItem is NavigationViewItem itm && itm.Tag != null)
                 {
-                    if(itm.Tag.ToString() == "OfficePage")
+                    var tag = itm.Tag.ToString();
+                    switch (tag)
                     {
-                        if(MainFrame.Content != OfficePage)
-                        {
-                            MainFrame.Content = OfficePage;
-                        }
+                        case "OfficePage":
+                            if (RootMainFrame.Content != OfficePage)
+                            {
+                                RootMainFrame.Content = OfficePage;
+                            }
+                            break;
+                        case "LogsView":
+                            if (RootMainFrame.Content != LogsView)
+                            {
+                                RootMainFrame.Content = LogsView;
+                            }
+                            break;
                     }
                 }
+            }
+            UpdateNavView();
+        }
+        private void NavViewCustomButtonClick(object sender, RoutedEventArgs e)
+        {
+            var t = RootMainFrame.Content.GetType();
+            if (t.Equals(typeof(UserControls.LogsView)))
+            {
+                LogsInNewWindow();
+            }
+        }
+        private bool IsLogsInNewWindow = false;
+        public void LogsInNewWindow()
+        {
+            if (!IsLogsInNewWindow)
+            {
+                IsLogsInNewWindow = true;
+                RootMainFrame.Content = OfficePage;
+                navView.SelectedItem = NitDeployOffice;
+                navView.FooterMenuItems.Remove(NitLogs);
+
+                var w = new WinUIEx.WindowEx { Title = "Logs - MSFree4All",MinHeight = 300, MinWidth = 400 };
+                var g = new Grid();
+                var cg = new Grid
+                {
+                    Background = Application.Current.Resources["LayerFillColorDefaultBrush"] as Brush,
+                    Padding = new Thickness(5)
+                };
+                g.RequestedTheme = MainFrame.RequestedTheme;
+                g.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(48, GridUnitType.Auto) });
+                g.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(48, GridUnitType.Star) });
+                cg.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(48, GridUnitType.Auto) });
+                cg.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100, GridUnitType.Star) });
+                var t = new UserControls.TitleBar() { Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Top };
+              
+                g.Children.Add(t);
+                Grid.SetRow(t, 0);
+                var h = new TextBlock()
+                {
+                    Style = App.Current.Resources["TitleTextBlockStyle"] as Style, 
+                    Text = "Logs",
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Margin = new Thickness(15,0,0,0)
+                };
+                g.Children.Add(cg);
+                Grid.SetRow(cg, 1);
+                cg.Children.Add(h);
+                cg.Children.Add(LogsView);
+                Grid.SetRow(h, 0);
+                Grid.SetRow(LogsView, 1);
+                LogsView.Margin = new Thickness(10, 0, 10, 10);
+                w.Content = g;
+
+                TitleBarHelper.SetExtendedTitleBar(w, t);
+                w.Activate();
+                w.SetWindowSize(600, 500);
+                new MicaBackground(w).TrySetMicaBackdrop();
+                IconHelper.SetIcon(w);
+                w.Closed += (_, _) =>
+                {
+                    LogsView.Margin = new Thickness(0);
+                    navView.FooterMenuItems.Add(NitLogs);
+                    navView.SelectedItem = NitLogs;
+                    cg.Children.Remove(LogsView);
+                    RootMainFrame.Content = LogsView;
+                    IsLogsInNewWindow = false;
+                    UpdateNavView();
+                };
+                UpdateNavView();
+                w.BringToFront();
             }
         }
 
         #endregion
+
     }
     public class NavViewHeaderTemplate
     { 
         public string HeaderText { get; set; }
+        public object CustomButtonText { get; set; }
+        public Visibility CustomButtonVisibility { get => CustomButtonText == null ? Visibility.Collapsed : Visibility.Visible; }
         public Thickness HeaderMargin { get; set; }
+        public Thickness CustomButtonPadding { get; set; } = new Button().Padding;
+        
     }
 }

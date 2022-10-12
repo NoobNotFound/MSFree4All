@@ -1,12 +1,14 @@
 using System.Xml.Serialization; 
-using System.Collections.Generic; 
-namespace MSFree4All.Core.Office.XML{ 
+using System.Collections.Generic;
+namespace MSFree4All.Core.Office.XML
+{
 
-[XmlRoot(ElementName="RemoveMSI")]
-public class RemoveMSI { 
+	[XmlRoot(ElementName = "RemoveMSI")]
+	public class RemoveMSI
+	{
 
-	[XmlElement(Namespace = "",ElementName="IgnoreProduct")] 
-	public List<IgnoreProduct> IgnoreProduct { get; set; } 
-}
+		[XmlElement(Namespace = "", ElementName = "IgnoreProduct")]
+		public List<IgnoreProduct> IgnoreProduct { get; set; }
+	}
 
 }

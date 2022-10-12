@@ -167,12 +167,7 @@ namespace MSFree4All.Views
             }
             else
             {
-                List<string> errorsList = new();
-                foreach (var item in errors)
-                {
-                    errorsList.Add(item.ToReadableString());
-                }
-                _ = new BulletsList(errorsList).ToContentDialog("Fix these errors before you go!", "Ok", ContentDialogButton.Close).ShowAsync();
+                _ = new BulletsList() { ItemsSource = errors.Select(x => x.ToReadableString()) }.ToContentDialog("Fix these errors before you go!", "Ok", ContentDialogButton.Close).ShowAsync();
 
             }
         }

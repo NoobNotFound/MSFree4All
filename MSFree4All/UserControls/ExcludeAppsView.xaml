@@ -20,14 +20,13 @@
                     <Setter Property="Margin" Value="0"/>
                 </Style>
             </GridView.ItemContainerStyle>
-
-            <!-- An extra property also needs to be added to the GridView's ItemsWrapGrid.
-    The following sets the maximum # of items to show before wrapping.-->
+            
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <ItemsWrapGrid x:Name="MaxItemsWrapGrid"
                            MaximumRowsOrColumns="3"
-                           Orientation="Horizontal"/>
+                                 
+                                   Orientation="Horizontal"/>
                 </ItemsPanelTemplate>
             </GridView.ItemsPanel>
             <GridView.ItemTemplate>

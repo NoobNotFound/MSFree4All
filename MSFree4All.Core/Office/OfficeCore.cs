@@ -17,6 +17,11 @@ namespace MSFree4All.Core.Office
     public static class Consts
     {
         #region Langs
+
+        /// <summary>
+        /// Item1 is Display Name.
+        /// Item2 is Language Code
+        /// </summary>
         public static List<(string, string)> Languages
         {
             get => new()
@@ -203,14 +208,17 @@ namespace MSFree4All.Core.Office
         public List<XML.Property> GetElements()
         {
             List<XML.Property> properties = LicensingProperties.GetProperties();
-            properties.Add(new XML.Property { Name = nameof(FORCEAPPSHUTDOWN), Value = FORCEAPPSHUTDOWN.ToUpperCase() });
-            properties.Add(new XML.Property { Name = nameof(PinIconsToTaskbar), Value = PinIconsToTaskbar.ToUpperCase() });
+            properties.Add(new XML.Property { Name = nameof(FORCEAPPSHUTDOWN), Value = FORCEAPPSHUTDOWN.ToString().ToLower() });
+            properties.Add(new XML.Property { Name = nameof(PinIconsToTaskbar), Value = PinIconsToTaskbar.ToString().ToLower() });
             properties.Add(new XML.Property { Name = nameof(AUTOACTIVATE), Value = AUTOACTIVATE.ToInt().ToString() });
             return properties;
         }
         public static Properties SetProperties(List<XML.Property> properties)
         {
-            bool GetBool(string name,bool isInt = false) { bool val = false; int ival; return (from b in properties where b.Name.ToLower() == name.ToLower() select !isInt ? (bool.TryParse(b.Value, out val) ? val : false) : int.TryParse(b.Value, out ival) ? ival == 1 : false).FirstOrDefault(); }
+            bool GetBool(string name,bool isInt = false) => properties
+                .Where(b=>b.Name.ToLower() == name.ToLower())
+                .Select(b=> !isInt ? b.Value.ToLower() == "true" : int.TryParse(b.Value, out int ival) && ival == 1)
+                .FirstOrDefault();
             var p = new Properties
             {
                 AUTOACTIVATE = GetBool(nameof(AUTOACTIVATE)),
@@ -445,6 +453,10 @@ namespace MSFree4All.Core.Office
                 {
                     er.Add(Errors.InvalidChannelVolume);
                 }
+                else if ((item.ID != OfficeProductIDs.ProPlus2021Volume && Channel == Channel.PerpetualVL2021) || (item.ID != OfficeProductIDs.ProPlus2019Volume && Channel == Channel.PerpetualVL2019))
+                {
+                    er.Add(Errors.InvalidVolumeChannel);
+                }
                 
 
                 foreach (var e in er)
@@ -563,6 +575,11 @@ namespace MSFree4All.Core.Office
         public event EventHandler ConfigurationUpdated = delegate { };
 
         /// <summary>
+        /// The deployer of the Configuration
+        /// </summary>
+        public Deployer.Deployer Deployer { get; set; } = new();
+
+        /// <summary>
         /// An unique number used for identify an Office Product
         /// </summary>
         public int OfficeProductsIDsCount = 0;
@@ -570,7 +587,7 @@ namespace MSFree4All.Core.Office
         /// <summary>
         /// The main configuration of the OfficeCore
         /// </summary>
-        public Configuration Configuration { get; set; } = new Configuration();
+        public Configuration Configuration { get; set; } = new();
 
         /// <summary>
         /// Creates an empty office core with default values
@@ -601,6 +618,13 @@ namespace MSFree4All.Core.Office
             else
             {
                 cfg.Add = add.Item2;
+                if (Configuration.RemoveMSI.Value && Configuration.RemoveMSI.IsSameLang)
+                {
+                    foreach (var item in cfg.Add.Product)
+                    {
+                        item.Language.Add(new XML.Language { ID = "MatchPreviousMSI" });
+                    }
+                }
                 Configuration.ConfigurationXML = cfg;
                 return add.Item1;
             }
@@ -719,8 +743,8 @@ namespace MSFree4All.Core.Office
                 RemoveMSI = XMLCfg.RemoveMSI != null ? new RemoveMSI
                     (
                         true,
-                        XMLCfg.RemoveMSI.IgnoreProduct != null && XMLCfg.RemoveMSI.IgnoreProduct.Count() > 0 ? (from ra in XMLCfg.RemoveMSI.IgnoreProduct select Enum.Parse<RemoveMSIApps>(ra.ID)).ToList() : new(),
-                        true
+                        XMLCfg.RemoveMSI.IgnoreProduct != null && XMLCfg.RemoveMSI.IgnoreProduct.Count > 0 ? (from ra in XMLCfg.RemoveMSI.IgnoreProduct select Enum.Parse<RemoveMSIApps>(ra.ID)).ToList() : new(),
+                        XMLCfg.Add?.Product != null && XMLCfg.Add?.Product.Count > 0 ? (from r in XMLCfg.Add.Product where r.Language.Where(x => x.ID == "MatchPreviousMSI").Count() > 0 select true).Count() > 0 : false
                     ) : new RemoveMSI(false, new(), false),
                 Updates = XMLCfg.Updates != null ? new Updates()
                 {
@@ -745,13 +769,32 @@ namespace MSFree4All.Core.Office
                     langCount++;
                     return langCount;
                 }
+                string FirstOrDefaultLangCode(string code) => code ?? Consts.Languages.Where(x => x.Item2.ToLower() == "en-us").Select(x => x.Item2).FirstOrDefault();
+                
+                string FirstOrDefaultDisplayLang(string lang) => lang ?? Consts.Languages.Where(x => x.Item2.ToLower() == "en-us").Select(x => x.Item1).FirstOrDefault();
+                
                 OfficeProductIDs e;
                 return new OfficeProduct(OfficeProductsIDsCount++)
                 {
                     ID = Enum.TryParse<OfficeProductIDs>(p.ID, true, out e) ? e : OfficeProductIDs.ProPlusRetail,
                     PIDKEY = string.IsNullOrEmpty(p.PIDKEY) ? p.PIDKEY : "",
                     ExcludeApps = p.ExcludeApp != null && p.ExcludeApp.Count > 0 ? (from a in p.ExcludeApp select Enum.Parse<OfficeApps>(a.ID)).ToList() : new(),
-                    Languages = new ObservableCollection<OfficeLanguage>(from l in p.Language select new OfficeLanguage(PlusLang()) { Culture = l.ID, DisplayName = (from cl in Consts.Languages where cl.Item2 == l.ID select cl.Item1).FirstOrDefault() }),
+                    Languages = new ObservableCollection<OfficeLanguage>
+                    (
+                        p.Language.Select(l=> new OfficeLanguage(PlusLang()) 
+                        { 
+                            Culture = FirstOrDefaultLangCode(
+                                Consts.Languages
+                                .Where(cl=> cl.Item2.ToLower() == l.ID.ToLower())
+                                .Select(cl=> cl.Item2)
+                                .FirstOrDefault()),
+                            DisplayName = FirstOrDefaultDisplayLang(
+                                Consts.Languages
+                                .Where(cl=> cl.Item2.ToLower() == l.ID.ToLower())
+                                .Select(cl=> cl.Item1)
+                                .FirstOrDefault())
+                        })
+                    ),
                     LanguagesIDsCount = langCount
                 };
             }

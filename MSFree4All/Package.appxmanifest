@@ -8,7 +8,7 @@
 
   <Identity
     Name="Noob.MSFree4All"
-    Publisher="CN=user"
+    Publisher="CN=NooB"
     Version="2.7.0.0" />
 
   <Properties>

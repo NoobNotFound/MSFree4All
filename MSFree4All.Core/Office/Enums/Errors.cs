@@ -13,6 +13,7 @@ namespace MSFree4All.Core.Office.Enums
         NoProduct = 2,
         VolumeError = 3,
         InvalidLangaugae = 4,
-        InvalidChannelVolume = 5
+        InvalidChannelVolume = 5,
+        InvalidVolumeChannel = 6
     }
 }

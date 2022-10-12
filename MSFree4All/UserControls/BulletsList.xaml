@@ -7,19 +7,22 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <ItemsControl.Resources>
-        <converters:ListToBulletsConverter x:Key="ListToBlts"/>
-    </ItemsControl.Resources>
     <ItemsControl.ItemTemplateSelector>
         <local:BulletsListItemTemplateSelector WordWrap="{x:Bind WordWrap,Mode=OneWay}">
             <local:BulletsListItemTemplateSelector.WrappedText>
-                <DataTemplate>
-                    <TextBlock TextWrapping="WrapWholeWords" Text="{Binding Converter={StaticResource ListToBlts}}" />
+                <DataTemplate x:DataType="x:String">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE915;" />
+                        <TextBlock TextWrapping="WrapWholeWords" Text="{x:Bind}" />
+                    </StackPanel>
                 </DataTemplate>
             </local:BulletsListItemTemplateSelector.WrappedText>
             <local:BulletsListItemTemplateSelector.NoWrapText>
-                <DataTemplate>
-                    <TextBlock TextWrapping="NoWrap" Text="{Binding Converter={StaticResource ListToBlts}}" />
+                <DataTemplate x:DataType="x:String">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE915;" />
+                        <TextBlock TextWrapping="NoWrap" Text="{x:Bind}" />
+                    </StackPanel>
                 </DataTemplate>
             </local:BulletsListItemTemplateSelector.NoWrapText>
         </local:BulletsListItemTemplateSelector>

@@ -5,6 +5,8 @@
     xmlns:local="using:MSFree4All">
     <Application.Resources>
         <ResourceDictionary>
+            <CornerRadius x:Key="GridViewItemCornerRadius">7</CornerRadius>
+            <StackLayout x:Name="VerticalStackLayout" Orientation="Vertical" Spacing="0"/>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="/ResourceDictionaries/CustomStyles.xaml" />

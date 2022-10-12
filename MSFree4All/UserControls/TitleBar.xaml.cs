@@ -20,9 +20,23 @@ namespace MSFree4All.UserControls
 {
     public sealed partial class TitleBar : UserControl
     {
+        private static event EventHandler? OnTitleChanged;
+        private static string appTitle;
+        public static string AppTitle { get => string.IsNullOrEmpty(appTitle) ? "MSFree4All" : appTitle; set { appTitle = value; OnTitleChanged?.Invoke(appTitle, new()); } }
         public TitleBar()
         {
             this.InitializeComponent();
+            OnTitleChanged += TitleBar_OnTitleChanged;
+            TitleBar_OnTitleChanged(null,null);
+        }
+
+        private void TitleBar_OnTitleChanged(object sender, EventArgs e)
+        {
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                txtAppTitle.Text = "";
+                txtAppTitle.Text = AppTitle;
+            });
         }
     }
 }

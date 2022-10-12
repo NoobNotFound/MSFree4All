@@ -137,7 +137,6 @@ namespace MSFree4All.Core.Office
         /// <summary>
         /// Converts the <paramref name="error"/> to an readable <see cref="string"/>
         /// </summary>
-        /// <param name="error"></param>
         /// <returns><see cref="string"/></returns>
         public static string ToReadableString(this Errors error)
         {
@@ -155,14 +154,15 @@ namespace MSFree4All.Core.Office
                     return "Invalid language(s) detected";
                 case Errors.InvalidChannelVolume:
                     return "You can't select that channel with a volume-license product";
+                case Errors.InvalidVolumeChannel:
+                    return "You can't select volume-license channel with a normal product";
             }
-            return "";
+            return "Unkown Error";
         }
 
         /// <summary>
         /// Converts the <paramref name="arch"/> to an Office Architecture <see cref="string"/>
-        /// </summary>
-        /// <param name="arch"></param>
+        /// </summary>=
         /// <returns><see cref="string"/></returns>
         public static string ToRealArch(this Architecture arch)
         {

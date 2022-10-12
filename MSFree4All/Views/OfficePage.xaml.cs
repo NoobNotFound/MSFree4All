@@ -21,6 +21,7 @@ using CommunityToolkit.WinUI.UI.Controls;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 using Windows.Storage;
+using Windows.ApplicationModel;
 
 namespace MSFree4All.Views
 {
@@ -327,25 +328,43 @@ namespace MSFree4All.Views
         }
         #endregion
 
-        private void btnViewXML_Click(object sender, RoutedEventArgs e)
+        #region ToolBar
+        public bool Compile()
         {
+            var nID = MainWindow.NotificationBar.Notify("Compiling...", InfoBarSeverity.Informational, autoHide: false);
             var r = MainCore.Office.OfficeCore.Compile();
-            if(r.Count() > 0)
+            MainWindow.NotificationBar.Hide(nID);
+            if (r.Count() > 0)
             {
+                MainWindow.NotificationBar.Change(nID,
+                    title: "Compile Failed!",
+                    severity: InfoBarSeverity.Error,
+                    description: "Some errors were detected.");
+                MainWindow.NotificationBar.Show(nID);
                 var s = new StackPanel();
                 foreach (var item in r)
                 {
-                    s.Children.Add(new TextBlock() { Text = item.Title,FontWeight = FontWeights.SemiBold,FontSize = 16 });
+                    s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
                     var li = from t in item select t.ToReadableString();
-                    s.Children.Add(new UserControls.BulletsList(li));
+                    s.Children.Add(new UserControls.BulletsList() { ItemsSource = li});
                 }
                 try
                 {
                     _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
                 }
                 catch { }
+                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                return false;
             }
-            else
+            MainWindow.NotificationBar.Change(nID,
+                title: "Compile Complete!",
+                severity: InfoBarSeverity.Success,visibility:true);
+            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 2), nID);
+            return true;
+        }
+        private void btnViewXML_Click(object sender, RoutedEventArgs e)
+        {
+            if(Compile())
             {
                 var dataPackage = new DataPackage();
                 dataPackage.SetText(MainCore.Office.OfficeCore.SerializeLastCompiled());
@@ -360,6 +379,7 @@ namespace MSFree4All.Views
 
         private async void btnLoadXML_Click(object sender, RoutedEventArgs e)
         {
+            var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational,description: "Waiting for the file...", autoHide:false);
             var fop = new FileOpenPicker();
             fop.FileTypeFilter.Add(".xml");
             WinRT.Interop.InitializeWithWindow.Initialize(fop, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
@@ -370,8 +390,13 @@ namespace MSFree4All.Views
                 var r = MainCore.Office.OfficeCore.DeserializeFromString(str,false);
                 if (r.Count > 0)
                 {
+                    MainWindow.NotificationBar.Change(nID,
+                        title: "Import Failed!",
+                        severity: InfoBarSeverity.Error,
+                        description: "There were errors in the configuration");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                     var s = new StackPanel();
-                    s.Children.Add(new UserControls.BulletsList(r) { WordWrap = false });
+                    s.Children.Add(new UserControls.BulletsList { ItemsSource = r, WordWrap = false });
                     try
                     {
                         var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
@@ -381,33 +406,31 @@ namespace MSFree4All.Views
                     }
                     catch { }
                 }
+                else
+                {
+                    MainWindow.NotificationBar.Change(nID,
+                        title: "Import Successful!",
+                        severity: InfoBarSeverity.Success,
+                        description: "Successfully imported XML from\n" + f.Path);
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                }
             }
             else
             {
-
+                MainWindow.NotificationBar.Change(nID,
+                    title: "Import Canceled!",
+                    severity: InfoBarSeverity.Warning,
+                    description: "The dialog was closed.");
+                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
             }
         }
 
         private async void btnSaveXML_Click(object sender, RoutedEventArgs e)
         {
-            var r = MainCore.Office.OfficeCore.Compile();
-            if (r.Count() > 0)
+            if(Compile())
             {
-                var s = new StackPanel();
-                foreach (var item in r)
-                {
-                    s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
-                    var li = from t in item select t.ToReadableString();
-                    s.Children.Add(new UserControls.BulletsList(li));
-                }
-                try
-                {
-                    _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
-                }
-                catch { }
-            }
-            else
-            {
+
+                var nID = MainWindow.NotificationBar.Notify("Picking a File", InfoBarSeverity.Informational,description:"Waiting for the user.", autoHide: false);
                 var fsp = new FileSavePicker();
                 fsp.FileTypeChoices.Add("XML Configuration", new List<string> { ".xml" });
                 WinRT.Interop.InitializeWithWindow.Initialize(fsp, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
@@ -415,8 +438,50 @@ namespace MSFree4All.Views
                 if (f != null)
                 {
                     await FileIO.WriteTextAsync(f, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                    MainWindow.NotificationBar.Change(nID,
+                        title: "Export Successful!",
+                        description:"",
+                        severity: InfoBarSeverity.Success);
+                }
+                else
+                {
+                    MainWindow.NotificationBar.Change(nID,
+                        title: "Import Failed!",
+                        severity: InfoBarSeverity.Warning,
+                        description:"The dialog was closed");
+                }
+                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+            }
+        }
+
+
+        private async void MitDMedia_Click(object sender, RoutedEventArgs e)
+        {
+            if (Compile())
+            {
+                var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational,autoHide:false);
+                string t = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
+                var folder = await (await App.GetLocalFolder()).CreateFolderAsync(t,CreationCollisionOption.GenerateUniqueName);
+                var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder,"setup.exe",NameCollisionOption.ReplaceExisting);
+                MainCore.Office.OfficeCore.Deployer.Intialize(file.Path,folder.Path);
+
+                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.CreateMedia, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                if(errs.Count > 0)
+                {
+
+                }
+                else
+                {
+                    MainWindow.NotificationBar.Change(nID,"Setup is running!",InfoBarSeverity.Success,"Successfully created config files to the " + folder.Path + ".");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                 }
             }
         }
+
+        private async void btnDeployMents_Click(object sender, RoutedEventArgs e)
+        {
+            OfficeMainPage.MainFrame.Content = new UserControls.FolderPicker(await App.GetLocalFolder());
+        }
+        #endregion
     }
 }

@@ -20,7 +20,7 @@
                 VerticalAlignment="Center"
                     Source="/Assets/StoreLogo.scale-400.png" />
             <TextBlock
-                x:Name="AppTitle"
+                x:Name="txtAppTitle"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center"
                 Style="{ThemeResource CaptionTextBlockStyle}"

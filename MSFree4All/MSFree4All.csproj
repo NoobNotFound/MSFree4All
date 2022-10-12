@@ -11,18 +11,23 @@
     <UseWinUI>true</UseWinUI>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <PackageCertificateThumbprint>1D53ED1DA748787FBD30076B4DD221562B001F3B</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	  <!--This is Unpackaged--><WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
   <ItemGroup>
-    <Content Remove="Assets\MSFree4All.ico" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Remove="Assets\MSFree4All.ico" />
+    <None Remove="Assets\setup.exe" />
     <None Remove="Dialogs\ErrorList.xaml" />
     <None Remove="ResourceDictionaries\CustomStyles.xaml" />
     <None Remove="ResourceDictionaries\Expanders.xaml" />
     <None Remove="ResourceDictionaries\RightAlignedToggleSwitch.xaml" />
     <None Remove="UserControls\ExcludeAppsView.xaml" />
+    <None Remove="UserControls\FolderPicker.xaml" />
+    <None Remove="UserControls\LogsView.xaml" />
     <None Remove="UserControls\NicExpander.xaml" />
     <None Remove="UserControls\NicExpanderItem.xaml" />
+    <None Remove="UserControls\NotificationBar.xaml" />
     <None Remove="UserControls\TitleBar.xaml" />
     <None Remove="Views\OfficeMainPage.xaml" />
     <None Remove="Views\OfficePage.xaml" />
@@ -41,9 +46,10 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.3" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.25169-preview" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.220909.2-experimental2" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.25206-preview" />
     <PackageReference Include="PInvoke.User32" Version="0.7.124" />
+    <PackageReference Include="WinUIEx" Version="1.8.0" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -110,11 +116,33 @@
     <Folder Include="Dialogs\" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\MSFree4All.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Page Update="UserControls\FolderPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="UserControls\NotificationBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="UserControls\NicExpanderItem.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="UserControls\LogsView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="UserControls\LogsView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\setup.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\MSFree4All.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

@@ -23,18 +23,13 @@ namespace MSFree4All.UserControls
     public sealed partial class BulletsList : ItemsControl, INotifyPropertyChanged
     {
         private bool wordWrap = true;
-        public bool WordWrap { get { return wordWrap; } set { wordWrap = value;this.PropertyChanged(this, new PropertyChangedEventArgs(nameof(WordWrap))); } }
+        public bool WordWrap { get { return wordWrap; } set { wordWrap = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WordWrap))); } }
         public BulletsList()
         {
-
-        }
-        public BulletsList(IEnumerable<string> strings)
-        {
-            this.InitializeComponent();
-            this.ItemsSource = strings;
+            this.DataContext = this;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 
     public class BulletsListItemTemplateSelector : DataTemplateSelector

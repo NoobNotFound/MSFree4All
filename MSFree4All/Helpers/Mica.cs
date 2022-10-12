@@ -16,10 +16,72 @@ using System.Runtime.InteropServices; // For DllImport
 using WinRT;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Composition;
+using PInvoke;
+using Windows.ApplicationModel;
+using WinRT.Interop;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 namespace MSFree4All.Helpers
 {
+    public static class TitleBarHelper
+    {
+        public static void SetExtendedTitleBar(Window window,UIElement AppTitleBar)
+        {
+            FrameworkElement RootUI = (FrameworkElement)window.Content;
+            if (AppWindowTitleBar.IsCustomizationSupported())
+            {
+                AppWindow AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(window)));
+                var titlebar = AppWindow.TitleBar;
+                titlebar.ExtendsContentIntoTitleBar = true;
+                void SetColor(ElementTheme acualTheme)
+                {
+                    titlebar.ButtonHoverBackgroundColor = App.LayerFillColorDefaultColor;
+                    titlebar.ButtonBackgroundColor = titlebar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    switch (acualTheme)
+                    {
+                        case ElementTheme.Dark:
+                            titlebar.ButtonForegroundColor = Colors.White;
+                            titlebar.ButtonHoverForegroundColor = Colors.Silver;
+                            titlebar.ButtonPressedForegroundColor = Colors.Silver;
+                            break;
+                        case ElementTheme.Light:
+                            titlebar.ButtonForegroundColor = Colors.Black;
+                            titlebar.ButtonHoverForegroundColor = Colors.DarkGray;
+                            titlebar.ButtonPressedForegroundColor = Colors.DarkGray;
+                            break;
+                    }
+                }
+                RootUI.ActualThemeChanged += (s, _) => SetColor(s.ActualTheme);
+                window.SetTitleBar(AppTitleBar);
+                SetColor(RootUI.ActualTheme);
+            }
+            else
+            {
+               window. ExtendsContentIntoTitleBar = true;
+               window.SetTitleBar(AppTitleBar);
+            }
+        }
+    }
+    
+    public static class IconHelper
+    {
+        public static void SetIcon(Window window)
+        {
+            var icon = User32.LoadImage(
+                hInst: IntPtr.Zero,
+                name: $@"{App.GetAppDir()}\Assets\MSFree4All.ico".ToCharArray(),
+                type: User32.ImageType.IMAGE_ICON,
+                cx: 0,
+                cy: 0,
+                fuLoad: User32.LoadImageFlags.LR_LOADFROMFILE | User32.LoadImageFlags.LR_DEFAULTSIZE | User32.LoadImageFlags.LR_SHARED
+            );
+            var Handle = WindowNative.GetWindowHandle(window);
+            User32.SendMessage(Handle, User32.WindowMessage.WM_SETICON, (IntPtr)1, icon);
+            User32.SendMessage(Handle, User32.WindowMessage.WM_SETICON, (IntPtr)0, icon);
+        }
+    }
     public class WindowsSystemDispatcherQueueHelper
     {
         private object? _dispatcherQueueController;

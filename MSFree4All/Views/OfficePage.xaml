@@ -117,7 +117,7 @@
                         <Grid>
                             <StackPanel>
                                 <TextBlock Text="Provide your organization name to set the Company property on office documents" TextWrapping="WrapWholeWords"/>
-                                <TextBox Margin="0,5" x:Name="txtOrgName" PlaceholderText="Noob's Channel"/>
+                                <TextBox Margin="0,5" x:Name="txtOrgName" TextChanged="txtOrgName_TextChanged" PlaceholderText="Noob's Channel"/>
                                 <TextBlock Text="Provide a description for this configuration" TextWrapping="WrapWholeWords"/>
                                 <TextBox Margin="0,5,0,0" x:Name="txtDescription" TextChanged="txtDescription_TextChanged" AcceptsReturn="True"/>
                             </StackPanel>
@@ -293,12 +293,32 @@
                 
             </StackPanel>
         </ScrollViewer>
+        <!--#region Commands Bar-->
         <Grid Grid.Row="1">
             <CommandBar HorizontalAlignment="Right" DefaultLabelPosition="Right">
                 <AppBarButton ToolTipService.ToolTip="Deploy" Label="Deploy">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe768;"/>
                     </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem Click="MitDMedia_Click" x:Name="MitDMedia" Text="Create an Installation Media">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xe896;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem x:Name="MitIMedia" Text="Install from an Installation Media">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE777;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem x:Name="MitISOMedia" Text="Create an ISO from an Installation Media">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE958;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator/>
                 <AppBarButton x:Name="btnViewXML" Click="btnViewXML_Click" ToolTipService.ToolTip="View Configuration.xml" Label="View Config">
@@ -325,7 +345,16 @@
                         <KeyboardAccelerator Modifiers="Control" Key="O"/>
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
+                <AppBarButton x:Name="btnDeployMents" Click="btnDeployMents_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Deployments" >
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE9D5;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="D"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
             </CommandBar>
         </Grid>
+        <!--#endregion-->
     </Grid>
 </Page>

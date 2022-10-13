@@ -19,12 +19,14 @@ namespace MSFree4All.Models
 {
     public interface Log : INotifyPropertyChanged
     {
-       public string Content { get; set; }
-       public object UniqueThings { get; set; }
-       public DateTime Time { get; set; }
-       public int ID { get; set; }
-       public void OnPropertyChanged(string propertyName);
+        public string Content { get; set; }
+        public object UniqueThings { get; set; }
+        public DateTime Time { get; set; }
+        public int ID { get; set; }
+        public void OnPropertyChanged(string propertyName);
         public InfoBarSeverity Severity { get; set; }
+        public ObservableCollection<UIElement> CustomControls { get; set; }
+
     }
     public class StringLog : Log
     {
@@ -41,13 +43,17 @@ namespace MSFree4All.Models
         public InfoBarSeverity Severity { get => _Severty; set => Set(ref _Severty, value); }
         public object UniqueThings { get; set; }
 
-        public StringLog(string content, DateTime time, int iD,InfoBarSeverity severity, object uniqueThings = null)
+        public ObservableCollection<UIElement> _CustomControls;
+        public ObservableCollection<UIElement> CustomControls { get => _CustomControls; set => Set(ref _CustomControls, value); }
+
+        public StringLog(string content, DateTime time, int iD,InfoBarSeverity severity, object uniqueThings = null,ObservableCollection<UIElement> customCOntrols = null)
         {
             Content = content;
             Time = time;
             ID = iD;
             this.Severity = severity;
             UniqueThings = uniqueThings;
+            CustomControls = customCOntrols;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -85,8 +91,11 @@ namespace MSFree4All.Models
         //
         private InfoBarSeverity _Severty;
         public InfoBarSeverity Severity { get => _Severty; set => Set(ref _Severty, value); }
+        //
+        public ObservableCollection<UIElement> _CustomControls;
+        public ObservableCollection<UIElement> CustomControls { get => _CustomControls; set => Set(ref _CustomControls, value); }
 
-        public ProgressLog(string content, DateTime time, int iD,int progress = 0,InfoBarSeverity severity = InfoBarSeverity.Informational,bool isIndeterminate = false,object uniquethings = null)
+        public ProgressLog(string content, DateTime time, int iD,int progress = 0,InfoBarSeverity severity = InfoBarSeverity.Informational,bool isIndeterminate = false,object uniquethings = null, ObservableCollection<UIElement> customCOntrols = null)
         {
             Content = content;
             Time = time;
@@ -95,6 +104,7 @@ namespace MSFree4All.Models
             IsIndeterminate = isIndeterminate;
             UniqueThings = uniquethings;
             Severity = severity;
+            CustomControls = customCOntrols;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -135,12 +145,25 @@ namespace MSFree4All.UserControls
             this.InitializeComponent();
             lv.ItemsSource = Logs;
         }
-        public int AddProgressLog(string content, int progress = 0, InfoBarSeverity severity = InfoBarSeverity.Informational,bool IsIndeterminate = false,object UniqueThings = null)
+        public int AddProgressLog(string content, int progress = 0, InfoBarSeverity severity = InfoBarSeverity.Informational,bool IsIndeterminate = false,object UniqueThings = null, ObservableCollection<UIElement> customCOntrols = null)
         {
-            var l = new Models.ProgressLog(content, DateTime.Now, lastID, progress, severity, IsIndeterminate,UniqueThings);
+            var l = new Models.ProgressLog(content, DateTime.Now, lastID, progress, severity, IsIndeterminate,UniqueThings,customCOntrols);
             lastID++;
             Logs.Add(l);
             return l.ID;
+        }
+        public object GetUniqueThings(int ID)
+        {
+            var l = Logs.FirstOrDefault(l => l.ID == ID);
+            try
+            {
+                return l.UniqueThings;
+            }
+            catch
+            {
+
+                return null;
+            }
         }
         public int[] SearchByUniqueThingsToString(string uniquethings)
         {
@@ -154,9 +177,9 @@ namespace MSFree4All.UserControls
                 return Array.Empty<int>();
             }
         }
-        public int AddStringLog(string content, InfoBarSeverity severity = InfoBarSeverity.Informational,object uniquethings = null)
+        public int AddStringLog(string content, InfoBarSeverity severity = InfoBarSeverity.Informational,object uniquethings = null, ObservableCollection<UIElement> customCOntrols = null)
         {
-            var l = new Models.StringLog(content, DateTime.Now, lastID, severity,uniquethings);
+            var l = new Models.StringLog(content, DateTime.Now, lastID, severity,uniquethings,customCOntrols);
             lastID++;
             Logs.Add(l);
             return l.ID;
@@ -180,6 +203,19 @@ namespace MSFree4All.UserControls
             try
             {
                 Logs.FirstOrDefault(l => l.ID == ID).Content = content;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                return false;
+            }
+        }
+        public bool ChangeCustomControls(int ID, ObservableCollection<UIElement> controls)
+        {
+            try
+            {
+                Logs.FirstOrDefault(l => l.ID == ID).CustomControls = controls;
                 return true;
             }
             catch (Exception ex)

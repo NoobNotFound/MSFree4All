@@ -228,22 +228,22 @@ namespace MSFree4All
                 LogsView.Margin = new Thickness(10, 0, 10, 10);
                 w.Content = g;
 
-                TitleBarHelper.SetExtendedTitleBar(w, t);
-                w.Activate();
-                w.SetWindowSize(600, 500);
-                new MicaBackground(w).TrySetMicaBackdrop();
-                IconHelper.SetIcon(w);
                 w.Closed += (_, _) =>
                 {
                     LogsView.Margin = new Thickness(0);
-                    navView.FooterMenuItems.Add(NitLogs);
-                    navView.SelectedItem = NitLogs;
                     cg.Children.Remove(LogsView);
                     RootMainFrame.Content = LogsView;
+                    navView.FooterMenuItems.Add(NitLogs);
+                    navView.SelectedItem = NitLogs;
                     IsLogsInNewWindow = false;
                     UpdateNavView();
                 };
                 UpdateNavView();
+                w.Activate();
+                w.SetWindowSize(600, 500);
+                TitleBarHelper.SetExtendedTitleBar(w, t);
+                new MicaBackground(w).TrySetMicaBackdrop();
+                IconHelper.SetIcon(w);
                 w.BringToFront();
             }
         }

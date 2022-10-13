@@ -139,7 +139,7 @@ namespace MSFree4All.Core.Office
 
         public XML.Display GetElement()
         {
-            if(Level == DisplayLevel.Full || AcceptEULA)
+            if(Level == DisplayLevel.None || AcceptEULA)
             {
                 var d = new XML.Display();
                 d.AcceptEULA = AcceptEULA;

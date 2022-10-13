@@ -1,148 +1,179 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>MSFree4All</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;arm64</Platforms>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
-    <UseWinUI>true</UseWinUI>
-    <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
-    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
-    <PackageCertificateThumbprint>1D53ED1DA748787FBD30076B4DD221562B001F3B</PackageCertificateThumbprint>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-	  <!--This is Unpackaged--><WindowsPackageType>None</WindowsPackageType>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Assets\MSFree4All.ico" />
-    <None Remove="Assets\setup.exe" />
-    <None Remove="Dialogs\ErrorList.xaml" />
-    <None Remove="ResourceDictionaries\CustomStyles.xaml" />
-    <None Remove="ResourceDictionaries\Expanders.xaml" />
-    <None Remove="ResourceDictionaries\RightAlignedToggleSwitch.xaml" />
-    <None Remove="UserControls\ExcludeAppsView.xaml" />
-    <None Remove="UserControls\FolderPicker.xaml" />
-    <None Remove="UserControls\LogsView.xaml" />
-    <None Remove="UserControls\NicExpander.xaml" />
-    <None Remove="UserControls\NicExpanderItem.xaml" />
-    <None Remove="UserControls\NotificationBar.xaml" />
-    <None Remove="UserControls\TitleBar.xaml" />
-    <None Remove="Views\OfficeMainPage.xaml" />
-    <None Remove="Views\OfficePage.xaml" />
-    <None Remove="Views\OfficeProductEditor.xaml" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>MSFree4All</RootNamespace>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<Platforms>x86;x64;arm64</Platforms>
+		<RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+		<PublishProfile>win10-$(Platform).pubxml</PublishProfile>
+		<UseWinUI>true</UseWinUI>
+		<EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
+		<SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+		<PackageCertificateThumbprint>1D53ED1DA748787FBD30076B4DD221562B001F3B</PackageCertificateThumbprint>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<!--This is Unpackaged-->
+		<WindowsPackageType>None</WindowsPackageType>
 
-  <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-  </ItemGroup>
+		<!-- The Information-->
+		<ApplicationIcon>Assets\MSFree4All.ico</ApplicationIcon>
+		<Company>NoobNotFound</Company>
+		<Description>A tool for actvate and Deploy office and Windows</Description>
+		<Copyright>Copyright© NoobNotFound</Copyright>
+		<PackageProjectUrl>https://msfree4all.rf.gd</PackageProjectUrl>
+		<FileVersion>2.7.0</FileVersion>
+		<AssemblyVersion>2.7.0</AssemblyVersion>
+		<Version>2.7.0</Version>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<!--=============-->
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm64'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|arm64'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Assets\MSFree4All.ico" />
+		<None Remove="Assets\setup.exe" />
+		<None Remove="Dialogs\ErrorList.xaml" />
+		<None Remove="ResourceDictionaries\CustomStyles.xaml" />
+		<None Remove="ResourceDictionaries\Expanders.xaml" />
+		<None Remove="ResourceDictionaries\RightAlignedToggleSwitch.xaml" />
+		<None Remove="UserControls\ExcludeAppsView.xaml" />
+		<None Remove="UserControls\FolderPicker.xaml" />
+		<None Remove="UserControls\LogsView.xaml" />
+		<None Remove="UserControls\NicExpander.xaml" />
+		<None Remove="UserControls\NicExpanderItem.xaml" />
+		<None Remove="UserControls\NotificationBar.xaml" />
+		<None Remove="UserControls\TitleBar.xaml" />
+		<None Remove="Views\OfficeMainPage.xaml" />
+		<None Remove="Views\OfficePage.xaml" />
+		<None Remove="Views\OfficeProductEditor.xaml" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.220909.2-experimental2" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.25206-preview" />
-    <PackageReference Include="PInvoke.User32" Version="0.7.124" />
-    <PackageReference Include="WinUIEx" Version="1.8.0" />
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\SplashScreen.scale-200.png" />
+		<Content Include="Assets\LockScreenLogo.scale-200.png" />
+		<Content Include="Assets\Square150x150Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.scale-200.png" />
+		<Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
+	</ItemGroup>
 
-  <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
+		<PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.220909.2-experimental2" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.25206-preview" />
+		<PackageReference Include="PInvoke.User32" Version="0.7.124" />
+		<PackageReference Include="WinUIEx" Version="1.8.0" />
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
        Tools extension to be activated for this project even if the Windows App SDK Nuget
        package has not yet been restored -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MSFree4All.Core\MSFree4All.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="UserControls\ExcludeAppsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Views\OfficeMainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Views\OfficeProductEditor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="ResourceDictionaries\CustomStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="ResourceDictionaries\Expanders.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="UserControls\NicExpander.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="UserControls\TitleBar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Views\OfficePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="ResourceDictionaries\RightAlignedToggleSwitch.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="UserControls\BulletsList.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Dialogs\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="UserControls\FolderPicker.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="UserControls\NotificationBar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Update="UserControls\NicExpanderItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomAdditionalCompileInputs Remove="UserControls\LogsView.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="UserControls\LogsView.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Assets\setup.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Assets\MSFree4All.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MSFree4All.Core\MSFree4All.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="UserControls\ExcludeAppsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\OfficeMainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\OfficeProductEditor.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="ResourceDictionaries\CustomStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="ResourceDictionaries\Expanders.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="UserControls\NicExpander.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="UserControls\TitleBar.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\OfficePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="ResourceDictionaries\RightAlignedToggleSwitch.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="UserControls\BulletsList.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Dialogs\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="UserControls\FolderPicker.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="UserControls\NotificationBar.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="UserControls\NicExpanderItem.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<CustomAdditionalCompileInputs Remove="UserControls\LogsView.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Remove="UserControls\LogsView.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="Assets\setup.exe">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="Assets\MSFree4All.ico">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>

@@ -346,7 +346,7 @@ namespace MSFree4All.Views
                 {
                     s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
                     var li = from t in item select t.ToReadableString();
-                    s.Children.Add(new UserControls.BulletsList() { ItemsSource = li});
+                    s.Children.Add(new UserControls.BulletsList() { ItemsSource = li });
                 }
                 try
                 {
@@ -354,11 +354,30 @@ namespace MSFree4All.Views
                 }
                 catch { }
                 MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                var btn = new Button() { Content = "Errors" };
+                int eID=  MainWindow.LogsView.AddStringLog("Failed to compile Office configuration.", InfoBarSeverity.Error, r,customCOntrols: new() { btn });
+                btn.Click += (_, _) =>
+                {
+                    s = new StackPanel();
+                    foreach (var item in (ErrorsList[])MainWindow.LogsView.GetUniqueThings(eID))
+                    {
+                        s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
+                        var li = from t in item select t.ToReadableString();
+                        s.Children.Add(new UserControls.BulletsList() { ItemsSource = li });
+                    }
+                    try 
+                    {
+                        _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
+                    } 
+                    catch { } };
                 return false;
             }
             MainWindow.NotificationBar.Change(nID,
                 title: "Compile Complete!",
-                severity: InfoBarSeverity.Success,visibility:true);
+                severity: InfoBarSeverity.Success, visibility: true);
+            var sbtn = new Button() { Content = "View" };
+            var lid = MainWindow.LogsView.AddStringLog("Successfully compiled Office configuration.", InfoBarSeverity.Success, MainCore.Office.OfficeCore.SerializeLastCompiled(), customCOntrols: new() { sbtn });
+            sbtn.Click += (_, _) => { try { _ = GetViewConfigDialog(MainWindow.LogsView.GetUniqueThings(lid).ToString()).ShowAsync(); } catch { } };
             MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 2), nID);
             return true;
         }
@@ -366,17 +385,21 @@ namespace MSFree4All.Views
         {
             if(Compile())
             {
-                var dataPackage = new DataPackage();
-                dataPackage.SetText(MainCore.Office.OfficeCore.SerializeLastCompiled());
-                var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{MainCore.Office.OfficeCore.SerializeLastCompiled()}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Close);
-                d.PrimaryButtonText = "Copy to clipboard";
-                d.PrimaryButtonClick += (_,_) => Clipboard.SetContent(dataPackage);
-                d.SecondaryButtonText = "Save";
-                d.SecondaryButtonClick += (_, _) => btnSaveXML_Click(null,null);
-                _ = d.ShowAsync();
+                _ = GetViewConfigDialog().ShowAsync();
             }
         }
-
+        private ContentDialog GetViewConfigDialog(string xml = null)
+        {
+            var cxml = xml ?? MainCore.Office.OfficeCore.SerializeLastCompiled();
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(cxml);
+            var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{cxml}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Close);
+            d.PrimaryButtonText = "Copy to clipboard";
+            d.PrimaryButtonClick += (_, _) => Clipboard.SetContent(dataPackage);
+            d.SecondaryButtonText = "Save";
+            d.SecondaryButtonClick += (_, _) => btnSaveXML_Click(null, null);
+            return d;
+        }
         private async void btnLoadXML_Click(object sender, RoutedEventArgs e)
         {
             var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational,description: "Waiting for the file...", autoHide:false);
@@ -446,7 +469,7 @@ namespace MSFree4All.Views
                 else
                 {
                     MainWindow.NotificationBar.Change(nID,
-                        title: "Import Failed!",
+                        title: "Export Failed!",
                         severity: InfoBarSeverity.Warning,
                         description:"The dialog was closed");
                 }

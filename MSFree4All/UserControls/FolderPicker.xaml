@@ -43,28 +43,32 @@
             </Button>
         </Grid>
         <ProgressBar IsIndeterminate="True" Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" x:Name="pbLoading" Visibility="Collapsed"/>
-        <GridView
+        <toolkit:AdaptiveGridView
             x:Name="agv"
             Grid.Row="2"
             animations:ItemsReorderAnimation.Duration="00:00:00.3750000"
             SelectionMode="{x:Bind SelectionMode,Mode=OneWay}"
             ItemsSource="{x:Bind ItemsSource,Mode=OneWay}"
             IsItemClickEnabled="{x:Bind ItemsClickEnabled,Mode=OneWay}"
+            SelectionChanged="agv_SelectionChanged"
             FlowDirection="LeftToRight"
             ItemClick="AdaptiveGridView_ItemClick">
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="models:StorageItem" >
-                    <Grid Padding="10" x:DefaultBindMode="OneWay">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <Image Width="100" Grid.Row="0" Margin="10" Source="{x:Bind Thumbnail}"/>
-                        <TextBlock HorizontalAlignment="Center" Text="{x:Bind DisplayName()}" Grid.Row="1" TextTrimming="CharacterEllipsis"/>
+            
+            <toolkit:AdaptiveGridView.ItemTemplate>
+                <DataTemplate x:DataType="models:StorageItem">
+                    <Grid>
+                        <Grid Padding="10" x:DefaultBindMode="OneWay">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Image Width="100" Grid.Row="0" Margin="10" Source="{x:Bind Thumbnail}"/>
+                            <TextBlock HorizontalAlignment="Center" Text="{x:Bind DisplayName()}" Grid.Row="1" TextTrimming="CharacterEllipsis"/>
+                        </Grid>
                     </Grid>
                 </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
+            </toolkit:AdaptiveGridView.ItemTemplate>
+        </toolkit:AdaptiveGridView>
         <TextBlock Text="Empty" Visibility="Collapsed" x:Name="txtEmpty" Grid.Row="2" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center"  />
     </Grid>
 </UserControl>

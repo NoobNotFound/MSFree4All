@@ -395,7 +395,7 @@ namespace MSFree4All.Views
             dataPackage.SetText(cxml);
             var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{cxml}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Close);
             d.PrimaryButtonText = "Copy to clipboard";
-            d.PrimaryButtonClick += (_, _) => Clipboard.SetContent(dataPackage);
+            d.PrimaryButtonClick += (_, _) => { Clipboard.SetContent(dataPackage); MainWindow.NotificationBar.Notify("Copied to Clipboard!", InfoBarSeverity.Success); };
             d.SecondaryButtonText = "Save";
             d.SecondaryButtonClick += (_, _) => btnSaveXML_Click(null, null);
             return d;
@@ -503,7 +503,20 @@ namespace MSFree4All.Views
 
         private async void btnDeployMents_Click(object sender, RoutedEventArgs e)
         {
-            OfficeMainPage.MainFrame.Content = new UserControls.FolderPicker(await App.GetLocalFolder());
+            var lf = await App.GetLocalFolder();
+            var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false,FileClickOnlyIf = true };
+            fop.NoDelete.Add("setup.exe");
+            fop.NoDelete.Add("Configuration.xml");
+            fop.NoDelete.Add("Office");
+            fop.FileClickOnlyIfType.Add(".xml");
+            fop.FileClicked += async (s, e) =>
+            {
+                var xml = await FileIO.ReadTextAsync(e.Item as StorageFile);
+                var d = GetViewConfigDialog(xml);
+                d.Title = (e.Item as StorageFile).DisplayName;
+                d.Show();
+            };
+            OfficeMainPage.MainFrame.Content = fop;
         }
         #endregion
     }

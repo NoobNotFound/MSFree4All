@@ -45,6 +45,9 @@ namespace MSFree4All.Models
         private BitmapImage _Thumbnail;
         public BitmapImage Thumbnail { get => _Thumbnail; set => Set(ref _Thumbnail, value); }
 
+        private bool _IsChecked;
+        public bool IsChecked { get => _IsChecked; set => Set(ref _IsChecked, value); }
+
         private Enums.StorageItemType _ItemType;
         public Enums.StorageItemType ItemType { get => _ItemType; private set => Set(ref _ItemType, value); }
 
@@ -66,6 +69,8 @@ namespace MSFree4All.UserControls
     public sealed partial class FolderPicker : UserControl,INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler? SelectionChanged;
+        public event EventHandler<StorageItem>? FileClicked;
         private void Set<T>(ref T obj,T value,string name = null)
         {
             obj = value;
@@ -79,10 +84,13 @@ namespace MSFree4All.UserControls
         private StorageFolder _BaseFolder;
         public StorageFolder BaseFolder { get => _BaseFolder; private set { Set(ref _BaseFolder, value); Refresh(); } }
 
+        private StorageFolder _RootFolder = null;
+        public StorageFolder RootFolder { get => _RootFolder; set { Set(ref _RootFolder, value); Refresh(); } }
 
         private ListViewSelectionMode _SelectionMode = ListViewSelectionMode.Extended;
         public ListViewSelectionMode SelectionMode { get => _SelectionMode; set => Set(ref _SelectionMode, value); }
 
+        public List<(IStorageItem Item, Enums.StorageItemType ItemType)> SelectedItems { get; private set; } = new();
 
         private bool _IsTopFolderButtonEnabled = true;
         public bool IsTopFolderButtonEnabled { get => _IsTopFolderButtonEnabled; set => Set(ref _IsTopFolderButtonEnabled, value); }
@@ -91,15 +99,25 @@ namespace MSFree4All.UserControls
         private bool _ItemsClickEnabled = true;
         public bool ItemsClickEnabled { get => _ItemsClickEnabled; set => Set(ref _ItemsClickEnabled, value); }
 
-        
+       
+        public bool FileClickEnabled { get; set; } = true;
+        public bool FileClickOnlyIf { get; set; } = false;
+        public IList<string> FileClickOnlyIfType { get; set; } = new List<string>();
         public bool LaunchFiles { get; set; } = true;
+        public bool SelectFiles { get; set; } = true;
+        public bool SelectFolders { get; set; } = true;
+        public bool SelectFilesOnlyIf { get; set; } = false;
+        public IList<string> SelectFilesOnlyIfType { get; private set; } = new List<string>();
+        public bool LaunchFilesOnlyIf { get; set; } = false;
+        public IList<string> LaunchFilesOnlyIfType { get; private set; } = new List<string>();
         public bool IsDirectoryBarEnabled { get; set; } = true;
+
+        public IList<string> NoDelete { get; private set; } = new List<string>();
 
         public FolderPicker(StorageFolder baseFolder)
         {
             this.InitializeComponent();
             this.DataContext = this;
-            
             BaseFolder = baseFolder;
         }
 
@@ -126,9 +144,17 @@ namespace MSFree4All.UserControls
                     }
                     else
                     {
+                        var file = (StorageFile)item.Item;
+                        if (FileClickEnabled && ((FileClickOnlyIf && FileClickOnlyIfType.Contains(file.FileType.ToLower())) || !FileClickOnlyIf))
+                        {
+                            FileClicked?.Invoke(this,item);
+                        }
                         if (LaunchFiles)
                         {
-                            var file = (StorageFile)item.Item;
+
+                            if (LaunchFilesOnlyIf && !LaunchFilesOnlyIfType.Contains(file.FileType.ToLower()))
+                                return;
+
                             if (file.FileType.ToLower() == ".exe")
                             {
                                 try
@@ -149,6 +175,10 @@ namespace MSFree4All.UserControls
         public async void Refresh()
         {
             this.IsEnabled = false;
+            if(RootFolder != null && !BaseFolder.Path.Contains(RootFolder.Path))
+            {
+                BaseFolder = RootFolder;
+            }
             pbLoading.Visibility = Visibility.Visible;
             var fos = await(await BaseFolder.GetFoldersAsync()).ToStorageItemsArray();
             var fis = await(await BaseFolder.GetFilesAsync()).ToStorageItemsArray();
@@ -168,7 +198,7 @@ namespace MSFree4All.UserControls
                     f = folder;
                 }
             }
-            var r=new ObservableCollection<StorageFolder>();
+            var r = new ObservableCollection<StorageFolder>();
             for (int i = 0; i <= bcbFs.Count - 1; i++)
             {
                 r.Add(bcbFs[bcbFs.Count - 1 - i]);
@@ -178,7 +208,7 @@ namespace MSFree4All.UserControls
             BcBPath.ItemsSource = r;
             if (IsTopFolderButtonEnabled)
             {
-                btnTopFolder.IsEnabled = await BaseFolder.GetParentAsync() != null;
+                btnTopFolder.IsEnabled = BaseFolder == RootFolder ? false : await BaseFolder.GetParentAsync() != null;
             }
             txtEmpty.Visibility = ItemsSource.Count > 0 ? Visibility.Collapsed : Visibility.Visible;
             this.IsEnabled = true;
@@ -186,9 +216,10 @@ namespace MSFree4All.UserControls
         private async void btnTopFolder_Click(object sender, RoutedEventArgs e)
         {
             if (await BaseFolder.GetParentAsync() != null)
-                BaseFolder = await BaseFolder.GetParentAsync();
+            {
+                BaseFolder = RootFolder != null && !(await BaseFolder.GetParentAsync()).Path.Contains(RootFolder.Path) ? RootFolder : await BaseFolder.GetParentAsync();
+            }
         }
-
 
         private void BcBPath_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
         {
@@ -270,12 +301,38 @@ namespace MSFree4All.UserControls
             {
                 this.IsEnabled = false;
                 pbLoading.Visibility = Visibility.Visible;
+                var noDeleteItems = new List<string>();
                 foreach (StorageItem item in agv.SelectedItems)
                 {
-                    await item.Item.DeleteAsync();
+                    if (!NoDelete.Contains(item.Item.Name))
+                    {
+                        await item.Item.DeleteAsync();
+                    }
+                    else
+                    {
+                        noDeleteItems.Add(item.Item.Name);
+                    }
+                }
+                if (noDeleteItems.Any())
+                {
+                    new BulletsList() { ItemsSource = noDeleteItems }.ToContentDialog("You are not allowed to delete", "Okay").Show();
                 }
                 Refresh();
             }
         }
+
+        private void agv_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelectedItems = new();
+            foreach (StorageItem item in agv.SelectedItems)
+            {
+                if ((SelectFiles && item.ItemType == Enums.StorageItemType.File && ((SelectFilesOnlyIf && SelectFilesOnlyIfType.Contains((item.Item as StorageFile).FileType.ToLower())) || !SelectFilesOnlyIf)) || SelectFolders)
+                {
+                    SelectedItems.Add((item.Item, item.ItemType));
+                }
+            }
+            SelectionChanged?.Invoke(this, new());
+        }
+
     }
 }

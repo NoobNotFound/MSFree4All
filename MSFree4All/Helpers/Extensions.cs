@@ -25,6 +25,15 @@ namespace MSFree4All.Helpers
             };
             return dialog;
         }
+        public static void Show(this ContentDialog dialog)
+        {
+            try
+            {
+                _ = dialog.ShowAsync();
+            }
+            catch
+            {}
+        }
         public static async Task<BitmapImage> ToThumbnail(this StorageFile file)
         {
             try

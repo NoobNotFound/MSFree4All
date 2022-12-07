@@ -1,4 +1,4 @@
-﻿<WinUIEx:WindowEx
+﻿<Window
     x:Class="MSFree4All.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -65,4 +65,4 @@
             </NavigationView.PaneFooter>
         </NavigationView>
     </Grid>
-</WinUIEx:WindowEx>
+</Window>

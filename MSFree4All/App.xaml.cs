@@ -69,8 +69,6 @@ namespace MSFree4All
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            if (System.Diagnostics.Process.GetProcessesByName("MSFree4All").Length == 1)
-            {
                 try
                 {
                     var f = ApplicationData.Current.LocalFolder;
@@ -83,11 +81,6 @@ namespace MSFree4All
                 MainWindow.Activate();
 
                 new MicaBackground(MainWindow).TrySetMicaBackdrop();
-            }
-            else
-            {
-                Current.Exit();
-            }
         }
 
         public static Window MainWindow;

@@ -8,8 +8,8 @@ namespace MSFree4All.Core.Office.Deployer.Enums
 {
     public enum DeployType
     {
-        InstallFromMedia,
-        CreateMedia,
+        Configure,
+        Download,
         ISOFromMedia
     }
 }

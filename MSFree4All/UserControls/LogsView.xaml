@@ -15,6 +15,12 @@
             SuccessBrush="{StaticResource InfoBarSuccessSeverityBackgroundBrush}"
             InformationalBrush="{StaticResource InfoBarInformationalSeverityBackgroundBrush}"
             x:Key="ServertyToBackground"/>
+        <convertes:InfobarServertyToBackground 
+            ErrorBrush="{StaticResource SystemErrorTextColor}" 
+            WarningBrush="{StaticResource InfoBarWarningSeverityBackgroundBrush}"
+            SuccessBrush="LightGreen"
+            InformationalBrush="White"
+            x:Key="ServertyToForeground"/>
         <convertes:NotBoolToVisibility x:Key="NotBoolToVisibility"/>
     </UserControl.Resources>
 
@@ -29,88 +35,138 @@
             <local:LogsViewTemplateSelector>
                 <local:LogsViewTemplateSelector.Progress>
                     <DataTemplate x:DataType="models:ProgressLog">
-                        <Grid Margin="0,5,5,0" CornerRadius="5" Padding="10" x:DefaultBindMode="OneWay" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Text="{x:Bind Time.ToLongTimeString()}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" FontSize="13" HorizontalAlignment="Left"/>
-                                <TextBlock TextTrimming="CharacterEllipsis" Grid.Row="1" Margin="0,3,0,0" Text="{x:Bind Content}"/>
+                        <Grid x:DefaultBindMode="OneWay">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ChildrenTransitions>
+                                <TransitionCollection>
+                                    <AddDeleteThemeTransition/>
+                                </TransitionCollection>
+                            </Grid.ChildrenTransitions>
+                            <Button BorderBrush="Transparent" Background="Transparent" HorizontalContentAlignment="Stretch" Padding="0" HorizontalAlignment="Stretch" Margin="0,5,5,0" Click="btnSubLog_Click" ToolTipService.ToolTip="Click for more logs" Grid.Row="0">
+                                <Grid HorizontalAlignment="Stretch" CornerRadius="5" Padding="10" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{x:Bind Time.ToLongTimeString()}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" FontSize="13" HorizontalAlignment="Left"/>
+                                        <TextBlock TextTrimming="CharacterEllipsis" Grid.Row="1" Margin="0,3,0,0" Text="{x:Bind Content}"/>
 
-                                <Grid Grid.Row="2" Visibility="{x:Bind ProgressVisibility,Mode=OneWay}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0"  Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="{x:Bind Progress}"/>%</TextBlock>
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="0%"  Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" Grid.Column="0"/>
-                                        <ProgressBar IsIndeterminate="{x:Bind IsIndeterminate}"  Margin="5" Grid.Column="1" VerticalAlignment="Stretch" Maximum="100" Value="{x:Bind Progress}"/>
-                                        <TextBlock Text="100%" Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" Grid.Column="2"/>
+                                        <Grid Grid.Row="2" Visibility="{x:Bind ProgressVisibility,Mode=OneWay}">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0"  Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="{x:Bind Progress}"/>%</TextBlock>
+                                            <Grid Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="0%"  Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" Grid.Column="0"/>
+                                                <ProgressBar IsIndeterminate="{x:Bind IsIndeterminate}"  Margin="5" Grid.Column="1" VerticalAlignment="Stretch" Maximum="100" Value="{x:Bind Progress}"/>
+                                                <TextBlock Text="100%" Visibility="{x:Bind IsIndeterminate,Converter={StaticResource NotBoolToVisibility}}" Grid.Column="2"/>
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
+                                    <GridView VerticalAlignment="Center" Grid.Column="1" Margin="5,0,0,0" ItemsSource="{x:Bind CustomControls}" SelectionMode="None" IsItemClickEnabled="False">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="Margin" Value="0"/>
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
+
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="2" Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="UIElement">
+                                                <ContentPresenter Content="{x:Bind Mode=OneWay}"/>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                    </GridView>
                                 </Grid>
+                            </Button>
+                            <Grid x:Name="SubLogs" Margin="0,3,5,0" x:Load="{x:Bind LoadSubLogs}" Padding="5" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}" CornerRadius="5" Grid.Row="1">
+                                <ListView SelectionMode="None" Padding="5" CornerRadius="5" Background="Black" ItemsSource="{x:Bind SubLogs}">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:SubLog">
+                                            <RichTextBlock x:DefaultBindMode="OneWay" Foreground="White">
+                                                <Paragraph>
+                                                    [<Run Text="{x:Bind Time.ToShortTimeString()}"/>] 
+                                                    [<Run Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
+                                                    <Run Text="{x:Bind Message}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>
+                                                </Paragraph>
+                                            </RichTextBlock>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </Grid>
-                            <GridView VerticalAlignment="Center" Grid.Column="1" Margin="5,0,0,0" ItemsSource="{x:Bind CustomControls}" SelectionMode="None" IsItemClickEnabled="False">
-                                <GridView.ItemContainerStyle>
-                                    <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0"/>
-                                    </Style>
-                                </GridView.ItemContainerStyle>
-
-                                <GridView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="2" Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </GridView.ItemsPanel>
-                                <GridView.ItemTemplate>
-                                    <DataTemplate x:DataType="UIElement">
-                                        <ContentPresenter Content="{x:Bind Mode=OneWay}"/>
-                                    </DataTemplate>
-                                </GridView.ItemTemplate>
-                            </GridView>
-
                         </Grid>
                     </DataTemplate>
                 </local:LogsViewTemplateSelector.Progress>
                 <local:LogsViewTemplateSelector.String>
                     <DataTemplate x:DataType="models:StringLog">
-                        <Grid Margin="0,5,5,0" CornerRadius="5" Padding="10,10,10,0" x:DefaultBindMode="OneWay" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" FontSize="13" Text="{x:Bind Time.ToLongTimeString()}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" HorizontalAlignment="Left"/>
-                                <TextBlock TextTrimming="CharacterEllipsis" Grid.Row="1" Margin="0,3,0,0" Text="{x:Bind Content}"/>
-                            </Grid>
-                            <GridView VerticalAlignment="Center" Grid.Column="1" Margin="5,0,0,0" ItemsSource="{x:Bind CustomControls}" SelectionMode="None" IsItemClickEnabled="False">
-                                <GridView.ItemContainerStyle>
-                                    <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0"/>
-                                    </Style>
-                                </GridView.ItemContainerStyle>
+                        <Grid x:DefaultBindMode="OneWay">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Button BorderBrush="Transparent" Background="Transparent" HorizontalContentAlignment="Stretch" Padding="0" HorizontalAlignment="Stretch" Margin="0,5,5,0" Click="btnSubLog_Click" ToolTipService.ToolTip="Click for more logs" Grid.Row="0">
+                                <Grid HorizontalAlignment="Stretch" CornerRadius="5" Padding="10" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" FontSize="13" Text="{x:Bind Time.ToLongTimeString()}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" HorizontalAlignment="Left"/>
+                                        <TextBlock TextTrimming="CharacterEllipsis" Grid.Row="1" Margin="0,3,0,0" Text="{x:Bind Content}"/>
+                                    </Grid>
+                                    <GridView VerticalAlignment="Center" Grid.Column="1" Margin="5,0,0,0" ItemsSource="{x:Bind CustomControls}" SelectionMode="None" IsItemClickEnabled="False">
+                                        <GridView.ItemContainerStyle>
+                                            <Style TargetType="GridViewItem">
+                                                <Setter Property="Margin" Value="0"/>
+                                            </Style>
+                                        </GridView.ItemContainerStyle>
 
-                                <GridView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="2" Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </GridView.ItemsPanel>
-                            </GridView>
+                                        <GridView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid x:Name="MaxItemsWrapGrid" MaximumRowsOrColumns="2" Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </GridView.ItemsPanel>
+                                    </GridView>
+                                </Grid>
+                            </Button>
+                            <Grid x:Name="SubLogs" Margin="0,3,5,0" x:Load="{x:Bind LoadSubLogs}" Padding="5" Background="{x:Bind Severity,Converter={StaticResource ServertyToBackground}}" CornerRadius="5" Grid.Row="1">
+                                <ListView SelectionMode="None" Padding="5" CornerRadius="5" Background="Black" ItemsSource="{x:Bind SubLogs}">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:SubLog">
+                                            <RichTextBlock x:DefaultBindMode="OneWay" Foreground="White">
+                                                <Paragraph>
+                                                    [<Run Text="{x:Bind Time.ToShortTimeString()}"/>] 
+                                                    [<Run Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
+                                                    <Run Text="{x:Bind Message}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>
+                                                </Paragraph>
+                                            </RichTextBlock>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
                         </Grid>
                     </DataTemplate>
                 </local:LogsViewTemplateSelector.String>

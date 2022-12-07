@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.IO;
 using System.Collections.ObjectModel;
+using Windows.Foundation.Diagnostics;
+using Newtonsoft.Json;
 
 namespace MSFree4All.Core
 {
@@ -172,13 +174,15 @@ namespace MSFree4All.Core
             public static event ProcessIDHandler? ProcessRemoved;
             public event EventHandler<string>? outputReceived;
             public event EventHandler? Exited;
-
-            public delegate void ProcessIDHandler(int id);
+            public event EventHandler? Started;
+            public string Output { get; set; } = "";
+            public delegate void ProcessIDHandler(string name,int id);
             public Process Process { get; private set; }
-
-            public ProcessUtil(Process process)
+            public int? ID { get; set; }
+            public ProcessUtil(Process process, int? iD = null)
             {
                 this.Process = process;
+                ID = iD;
             }
             private static int procCount = 0;
             private static List<(Process,int)> Processes = new();
@@ -198,11 +202,11 @@ namespace MSFree4All.Core
             {
                 new WaitForExitHandler(ID).Start();
             }
-            public static int AddProcessAndStart(Process proc)
+            public static int AddProcessAndStart(Process proc,string displayName = null)
             {
                 var id = procCount;
                 Processes.Add((proc, id));
-                ProcessAdded?.Invoke(id);
+                ProcessAdded?.Invoke(displayName ?? proc.StartInfo.FileName, id);
                 procCount++;
                 new WaitForExitHandler(id).Start();
                 return id;
@@ -210,9 +214,11 @@ namespace MSFree4All.Core
             private class WaitForExitHandler
             {
                 public int ID;
-                public WaitForExitHandler(int iD)
+                private Process Proc;
+                public WaitForExitHandler(int iD,Process proc = null)
                 {
                     ID = iD;
+                    Proc = proc;
                 }
                 public void Start()
                 {
@@ -222,19 +228,19 @@ namespace MSFree4All.Core
                 }
                 private async void SartWithWaitForExitAndInvoke()
                 {
-                    var p = Processes.Where(x => x.Item2 == ID).FirstOrDefault().Item1;
+                    var p = Proc == null ? Processes.Where(x => x.Item2 == ID).FirstOrDefault().Item1 : Proc;
                     p.Start();
                     await p.WaitForExitAsync();
                     
-                    ProcessRemoved?.Invoke(ID);
+                    ProcessRemoved?.Invoke("",ID);
                     Processes.Remove(Processes.Where(x => x.Item2 == ID).FirstOrDefault());
                 }
             }
-            private static int AddProcess(Process proc)
+            private static int AddProcess(Process proc,string displayName = null)
             {
                 var id = procCount;
                 Processes.Add((proc, id));
-                ProcessAdded?.Invoke(id);
+                ProcessAdded?.Invoke(displayName ?? proc.StartInfo.FileName, id);
                 procCount++;
                 return id;
             }
@@ -252,39 +258,79 @@ namespace MSFree4All.Core
                     return false;
                 }
             }
-            public static ProcessUtil CreateUtilAndAddProcess(Process proc)
+            public static ProcessUtil CreateUtilAndAddProcess(Process proc,string displayName = null)
             {
-                var id = AddProcess(proc);
-                var p = new ProcessUtil(Processes.Where(x => x.Item2 == id).FirstOrDefault().Item1);
-                p.outputReceived += (_, e) => OutputReceived?.Invoke(p, new Office.Deployer.EventArgs.OutputReceivedEventArgs(Processes.Where(x => x.Item2 == id).FirstOrDefault().Item1.StartInfo.FileName, e));
+                var id = AddProcess(proc,displayName);
+                var p = new ProcessUtil(Processes.Where(x => x.Item2 == id).FirstOrDefault().Item1,id);
+                p.outputReceived += (_, e) =>
+                {
+                    try
+                    {
+                        var l = JsonConvert.DeserializeObject<Office.Models.Log>(e);
+                        if (l != null && l.Message != null)
+                        {
+                            OutputReceived?.Invoke(p, new Office.Deployer.EventArgs.OutputReceivedEventArgs(proc.StartInfo.FileName, l, id));
+                        }
+                    }
+                    catch { }
+                };
                 return p;
             }
             public static ProcessUtil CreateUtil(Process proc)
             {
                 var p = new ProcessUtil(proc);
-                p.outputReceived += (_, e) => OutputReceived?.Invoke(p, new Office.Deployer.EventArgs.OutputReceivedEventArgs(proc.StartInfo.FileName, e));
+                p.outputReceived += (_, e) =>
+                {
+                    try
+                    {
+                        var l = JsonConvert.DeserializeObject<Office.Models.Log>(e);
+                        if (l != null && l.Message != null)
+                        {
+                            OutputReceived?.Invoke(p, new Office.Deployer.EventArgs.OutputReceivedEventArgs(proc.StartInfo.FileName, l));
+                        }
+                    }
+                    catch { }
+                };
                 return p;
             }
-            public void StartWithEvents(bool isAdmin = false)
+            public void StartWithEvents(bool hideWindow = true, bool isAdmin = false)
             {
-                Process.StartInfo.CreateNoWindow = true;
-                Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                if (hideWindow)
+                {
+                    Process.StartInfo.CreateNoWindow = true;
+                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                }
                 Process.StartInfo.UseShellExecute = false;
-                Process.StartInfo.RedirectStandardError = true;
                 if (isAdmin) { Process.StartInfo.Verb = "runas"; }
+
+                Process.StartInfo.RedirectStandardError = true;
                 Process.StartInfo.RedirectStandardOutput = true;
+
+
                 Process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
                 Process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
-                Process.EnableRaisingEvents = true;
+
                 Process.ErrorDataReceived += (s, e) => outputReceived?.Invoke(this, e.Data ?? "");
                 Process.OutputDataReceived += (s, e) => outputReceived?.Invoke(this, e.Data ?? "");
                 Process.Exited += (s, e) => Exited?.Invoke(this, new EventArgs());
+                outputReceived += (_, e) => Output += "\n" + e;
+                System.Threading.Thread t = new System.Threading.Thread(SartWithWaitForExitAndInvoke);
+                t.Start();
+            }
 
+            private async void SartWithWaitForExitAndInvoke()
+            {
                 Process.Start();
                 Process.BeginErrorReadLine();
                 Process.BeginOutputReadLine();
-            }
+                await Process.WaitForExitAsync();
 
+                if (ID != null)
+                {
+                    ProcessRemoved?.Invoke("",ID.Value);
+                    Processes.Remove(Processes.Where(x => x.Item2 == ID.Value).FirstOrDefault());
+                }
+            }
             public Task WaitForExitTaskAsync()
             {
                 return Task.Run(() =>
@@ -299,12 +345,14 @@ namespace MSFree4All.Core.Office.Deployer.EventArgs
 {
     public class OutputReceivedEventArgs : System.EventArgs
     {
+        public int ID { get; set; }
         public string FileName { get;private set; }
-        public string Log { get;private set; }
-        public OutputReceivedEventArgs(string fileName,string log)
+        public Models.Log Log { get;private set; }
+        public OutputReceivedEventArgs(string fileName,Models.Log log, int iD =0)
         {
             FileName = fileName;
             Log = log;
+            ID = iD;
         }
     }
 }

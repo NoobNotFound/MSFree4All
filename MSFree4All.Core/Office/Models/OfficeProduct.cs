@@ -9,10 +9,9 @@ using System.Collections.ObjectModel;
 using MSFree4All.Core.Office;
 namespace MSFree4All.Core.Office.Models
 {
-    public class OfficeProduct : INotifyPropertyChanged
+    public class OfficeProduct
     {
         public string PIDKEY { get; set; } = "";
-        public event PropertyChangedEventHandler? PropertyChanged;
         public List<OfficeApps> ExcludeApps = new();
         public OfficeProductIDs? ID { get; set; } = null;
         public int Count { get; private set; }

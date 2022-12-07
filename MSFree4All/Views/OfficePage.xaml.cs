@@ -22,6 +22,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.ApplicationModel;
+using MSFree4All.UserControls;
+using System.Security.Cryptography;
 
 namespace MSFree4All.Views
 {
@@ -346,7 +348,7 @@ namespace MSFree4All.Views
                 {
                     s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
                     var li = from t in item select t.ToReadableString();
-                    s.Children.Add(new UserControls.BulletsList() { ItemsSource = li });
+                    s.Children.Add(new BulletsList() { ItemsSource = li });
                 }
                 try
                 {
@@ -363,7 +365,7 @@ namespace MSFree4All.Views
                     {
                         s.Children.Add(new TextBlock() { Text = item.Title, FontWeight = FontWeights.SemiBold, FontSize = 16 });
                         var li = from t in item select t.ToReadableString();
-                        s.Children.Add(new UserControls.BulletsList() { ItemsSource = li });
+                        s.Children.Add(new BulletsList() { ItemsSource = li });
                     }
                     try 
                     {
@@ -419,7 +421,7 @@ namespace MSFree4All.Views
                         description: "There were errors in the configuration");
                     MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                     var s = new StackPanel();
-                    s.Children.Add(new UserControls.BulletsList { ItemsSource = r, WordWrap = false });
+                    s.Children.Add(new BulletsList { ItemsSource = r, WordWrap = false });
                     try
                     {
                         var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
@@ -488,10 +490,12 @@ namespace MSFree4All.Views
                 var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder,"setup.exe",NameCollisionOption.ReplaceExisting);
                 MainCore.Office.OfficeCore.Deployer.Intialize(file.Path,folder.Path);
 
-                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.CreateMedia, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Download, MainCore.Office.OfficeCore.SerializeLastCompiled());
                 if(errs.Count > 0)
                 {
-
+                    MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                                new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!","OK").Show();
                 }
                 else
                 {
@@ -504,10 +508,12 @@ namespace MSFree4All.Views
         private async void btnDeployMents_Click(object sender, RoutedEventArgs e)
         {
             var lf = await App.GetLocalFolder();
-            var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false,FileClickOnlyIf = true };
+            
+            var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, FileClickOnlyIf = true };
             fop.NoDelete.Add("setup.exe");
             fop.NoDelete.Add("Configuration.xml");
             fop.NoDelete.Add("Office");
+            fop.NeverGotoFolders.Add("Office");
             fop.FileClickOnlyIfType.Add(".xml");
             fop.FileClicked += async (s, e) =>
             {
@@ -519,5 +525,284 @@ namespace MSFree4All.Views
             OfficeMainPage.MainFrame.Content = fop;
         }
         #endregion
+
+        private async void MitIMedia_Click(object sender, RoutedEventArgs e)
+        {
+            if (Compile())
+            {
+                var g = new StackPanel();
+                var i = new InfoBar()
+                {
+                    Title = "Warning!",
+                    Message = "Cannot find an installation media",
+                    Severity = InfoBarSeverity.Warning,
+                    Visibility = Visibility.Collapsed,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    IsClosable = false,
+                    IsOpen = true
+                };
+                var lf = await App.GetLocalFolder();
+                var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, GotoFolders = false, SelectionMode = ListViewSelectionMode.Single };
+                g.Children.Add(fop);
+                g.Children.Add(i);
+                var c = g.ToContentDialog("Choose an installation media", "Cancel", ContentDialogButton.Primary);
+                c.PrimaryButtonText = "Select";
+                c.IsPrimaryButtonEnabled = false;
+                fop.SelectionChanged += async (s, e) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    if (ItemType == Enums.StorageItemType.Folder)
+                    {
+                        try
+                        {
+                            await ((StorageFolder)Item).GetFolderAsync("Office");
+                            c.IsPrimaryButtonEnabled = true;
+                            i.Visibility = Visibility.Collapsed;
+                        }
+                        catch (NullReferenceException) { i.Visibility = Visibility.Collapsed; }
+                        catch
+                        {
+                            c.IsPrimaryButtonEnabled = false;
+                            i.Visibility = Visibility.Visible;
+                        }
+                    }
+                };
+                c.PrimaryButtonClick += async (_, _) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational, autoHide: false);
+                    if (Item != null && ItemType == Enums.StorageItemType.Folder)
+                    {
+                        var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync((StorageFolder)Item, "setup.exe", NameCollisionOption.ReplaceExisting);
+                        MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
+
+                        var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                        if (errs.Count > 0)
+                        {
+                            MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
+                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                            new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!", "OK").Show();
+                        }
+                        else
+                        {
+                            MainWindow.NotificationBar.Change(nID, "Setup is running!", InfoBarSeverity.Success, "Successfully created config files to the " + Item.Path + ".");
+                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                        }
+                    }
+                    else
+                    {
+                        MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Cannot find one or more folders.");
+                        MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                    }
+                };
+                c.Show();
+            }
+        }
+
+        private async void MitBMedia_Click(object sender, RoutedEventArgs e)
+        {
+            if (Compile())
+            {
+                var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational, autoHide: false);
+                string t = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
+                var folder = await(await App.GetLocalFolder()).CreateFolderAsync(t, CreationCollisionOption.GenerateUniqueName);
+                var file = await(await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder, "setup.exe", NameCollisionOption.ReplaceExisting);
+                MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, folder.Path);
+
+                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                if (errs.Count > 0)
+                {
+                    MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                    new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!", "OK").Show();
+                }
+                else
+                {
+                    MainWindow.NotificationBar.Change(nID, "Setup is running!", InfoBarSeverity.Success, "Successfully created config files to the " + folder.Path + ".");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                }
+            }
+        }
+
+        private async void MitISOMedia_Click(object sender, RoutedEventArgs e)
+        {
+            if (Compile())
+            {
+                var g = new StackPanel();
+                var i = new InfoBar()
+                {
+                    Title = "Warning!",
+                    Message = "Cannot find an installation media",
+                    Severity = InfoBarSeverity.Warning,
+                    Visibility = Visibility.Collapsed,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    IsClosable = false,
+                    IsOpen = true
+                };
+                var lf = await App.GetLocalFolder();
+                var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, GotoFolders = false, SelectionMode = ListViewSelectionMode.Single };
+                g.Children.Add(fop);
+                g.Children.Add(i);
+                var c = g.ToContentDialog("Choose an installation media", "Cancel", ContentDialogButton.Primary);
+                c.PrimaryButtonText = "Select";
+                c.IsPrimaryButtonEnabled = false;
+                fop.SelectionChanged += async (s, e) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    if (ItemType == Enums.StorageItemType.Folder)
+                    {
+                        try
+                        {
+                            await ((StorageFolder)Item).GetFolderAsync("Office");
+                            c.IsPrimaryButtonEnabled = true;
+                            i.Visibility = Visibility.Collapsed;
+                        }
+                        catch (NullReferenceException) { i.Visibility = Visibility.Collapsed; }
+                        catch
+                        {
+                            c.IsPrimaryButtonEnabled = false;
+                            i.Visibility = Visibility.Visible;
+                        }
+                    }
+                };
+                c.PrimaryButtonClick += async (_, _) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational, autoHide: false);
+                    if (Item != null && ItemType == Enums.StorageItemType.Folder)
+                    {
+                        var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync((StorageFolder)Item, "setup.exe", NameCollisionOption.ReplaceExisting);
+                        MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
+
+                        var fsp = new FileSavePicker();
+                        fsp.FileTypeChoices.Add("ISO File", new List<string> { ".iso" });
+                        WinRT.Interop.InitializeWithWindow.Initialize(fsp, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
+                        var f = await fsp.PickSaveFileAsync();
+                        if (f != null)
+                        {
+                            var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.ISOFromMedia, MainCore.Office.OfficeCore.SerializeLastCompiled(), f.Path);
+
+                            if (errs.Count > 0)
+                            {
+                                MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
+                                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                                new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!","OK").Show();
+                            }
+                            else
+                            {
+                                MainWindow.NotificationBar.Change(nID, "Creating ISO files!", InfoBarSeverity.Success, "Successfully created config files to the " + Item.Path + ".");
+                                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                            }
+                        }
+                        else
+                        {
+                            MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Warning, "The user cancelled.");
+                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                        }
+                    }
+                    else
+                    {
+                        MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Cannot find one or more folders.");
+                        MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                    }
+                };
+                c.Show();
+            }
+        }
+
+        private async void MitLoadXMLDeploys_Click(object sender, RoutedEventArgs e)
+        {
+            if (Compile())
+            {
+                var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational, autoHide: false);
+                var g = new StackPanel();
+                var i = new InfoBar()
+                {
+                    Title = "Warning!",
+                    Message = "Cannot find the Configuration",
+                    Severity = InfoBarSeverity.Warning,
+                    Visibility = Visibility.Collapsed,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    IsClosable = false,
+                    IsOpen = true
+                };
+                var lf = await App.GetLocalFolder();
+                var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, GotoFolders = false, SelectionMode = ListViewSelectionMode.Single };
+                g.Children.Add(fop);
+                g.Children.Add(i);
+                var c = g.ToContentDialog("Choose Configuration.xml", "Cancel", ContentDialogButton.Primary);
+                c.PrimaryButtonText = "Select";
+                c.IsPrimaryButtonEnabled = false;
+                fop.SelectionChanged += async (s, e) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    if (ItemType == Enums.StorageItemType.Folder)
+                    {
+                        try
+                        {
+                            await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
+                            c.IsPrimaryButtonEnabled = true;
+                            i.Visibility = Visibility.Collapsed;
+                        }
+                        catch (NullReferenceException) { i.Visibility = Visibility.Collapsed; }
+                        catch
+                        {
+                            c.IsPrimaryButtonEnabled = false;
+                            i.Visibility = Visibility.Visible;
+                        }
+                    }
+                };
+                c.PrimaryButtonClick += async (_, _) =>
+                {
+                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                    if (Item != null && ItemType == Enums.StorageItemType.Folder)
+                    {
+                        var f = await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
+                        var str = await FileIO.ReadTextAsync(f);
+                        var r = MainCore.Office.OfficeCore.DeserializeFromString(str, false);
+                        if (r.Count > 0)
+                        {
+                            MainWindow.NotificationBar.Change(nID,
+                                title: "Import Failed!",
+                                severity: InfoBarSeverity.Error,
+                                description: "There were errors in the configuration");
+                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                            var s = new StackPanel();
+                            s.Children.Add(new BulletsList { ItemsSource = r, WordWrap = false });
+                            try
+                            {
+                                var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
+                                d.PrimaryButtonText = "Continue Anyaway";
+                                d.PrimaryButtonClick += (s, e) => MainCore.Office.OfficeCore.DeserializeFromString(str, true);
+                                _ = d.ShowAsync();
+                            }
+                            catch { }
+                        }
+                        else
+                        {
+                            MainWindow.NotificationBar.Change(nID,
+                                title: "Import Successful!",
+                                severity: InfoBarSeverity.Success,
+                                description: "Successfully imported XML from\n" + f.Path);
+                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                        }
+                    }
+                    else
+                    {
+                        MainWindow.NotificationBar.Change(nID, "Import failed!", InfoBarSeverity.Error, "Cannot find one or more folders.");
+                        MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                    }
+                };
+                c.CloseButtonClick += (_, _) =>
+                {
+                    MainWindow.NotificationBar.Change(nID,
+                        title: "Import Failed!",
+                        severity: InfoBarSeverity.Warning,
+                        description: "The dialog was closed");
+                    MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                };
+                c.Show();
+            }
+        }
     }
 }

@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+
 namespace MSFree4All.Converters
 {
     public class StringToVisibility : IValueConverter
@@ -71,18 +73,18 @@ namespace MSFree4All.Converters
     }
     public class InfobarServertyToBackground : IValueConverter
     {
-        public object ErrorBrush { get; set; }
-        public object WarningBrush { get; set; }
-        public object SuccessBrush { get; set; }
-        public object InformationalBrush { get; set; }
+        public Brush ErrorBrush { get; set; }
+        public Brush WarningBrush { get; set; }
+        public Brush SuccessBrush { get; set; }
+        public Brush InformationalBrush { get; set; }
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return (Microsoft.UI.Xaml.Controls.InfoBarSeverity)value switch
+            return (InfoBarSeverity)value switch
             {
-                Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error => ErrorBrush,
-                Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning => WarningBrush,
-                Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success => SuccessBrush,
-                Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational => InformationalBrush,
+                InfoBarSeverity.Error => ErrorBrush,
+                InfoBarSeverity.Warning => WarningBrush,
+                InfoBarSeverity.Success => SuccessBrush,
+                InfoBarSeverity.Informational => InformationalBrush,
                 _ => InformationalBrush,
             };
         }

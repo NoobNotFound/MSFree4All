@@ -33,7 +33,7 @@ namespace MSFree4All
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : WindowEx
+    public sealed partial class MainWindow : Window
     {
         public static Views.OfficeMainPage OfficePage = new();
         public static Frame RootMainFrame;
@@ -56,17 +56,22 @@ namespace MSFree4All
             RootMainFrame.Content = OfficePage;
             navView.SelectedItem = NitDeployOffice;
             this.Activated += OnWindowCreate;
-            this.MinHeight = 400;
-            this.MinWidth = 600;
             InitializeLogs();
             
             this.Closed += (_, _) => Application.Current.Exit();
         }
         private void InitializeLogs()
         {
-            Core.Util.ProcessUtil.ProcessAdded += (id) => LogsView.AddProgressLog(Core.Util.ProcessUtil.GetProcessStartInfo(id).FileName, IsIndeterminate: true,UniqueThings:id);
-
-            Core.Util.ProcessUtil.ProcessRemoved += (id) =>
+            Core.Util.ProcessUtil.ProcessAdded += (n,id) => LogsView.AddProgressLog(n, IsIndeterminate: true,UniqueThings:id);
+            Core.Util.ProcessUtil.OutputReceived += (s, e) =>
+            {
+                this.DispatcherQueue.TryEnqueue(() =>
+                {
+                    var logID = LogsView.SearchByUniqueThingsToString(e.ID.ToString()).FirstOrDefault();
+                    LogsView.AddSubLog(logID, new Models.SubLog(e.Log.Message, (InfoBarSeverity)e.Log.Severity));
+                });
+            };
+            Core.Util.ProcessUtil.ProcessRemoved += (name,id) =>
             {
                 try
                 {
@@ -92,7 +97,7 @@ namespace MSFree4All
         
         public void TriggerTitleBarRepaint()
         {
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var hwnd = WindowNative.GetWindowHandle(this);
             var activeWindow = Win32.GetActiveWindow();
             if (hwnd == activeWindow)
             {
@@ -170,6 +175,7 @@ namespace MSFree4All
                         case "LogsView":
                             if (RootMainFrame.Content != LogsView)
                             {
+                                LogsView = new(LogsView.AllLogs);
                                 RootMainFrame.Content = LogsView;
                             }
                             break;
@@ -195,8 +201,8 @@ namespace MSFree4All
                 RootMainFrame.Content = OfficePage;
                 navView.SelectedItem = NitDeployOffice;
                 navView.FooterMenuItems.Remove(NitLogs);
-
-                var w = new WinUIEx.WindowEx { Title = "Logs - MSFree4All",MinHeight = 300, MinWidth = 400 };
+                
+                var w = new WindowEx { Title = "Logs - MSFree4All",MinHeight = 300, MinWidth = 400 };
                 var g = new Grid();
                 var cg = new Grid
                 {
@@ -214,7 +220,7 @@ namespace MSFree4All
                 Grid.SetRow(t, 0);
                 var h = new TextBlock()
                 {
-                    Style = App.Current.Resources["TitleTextBlockStyle"] as Style, 
+                    Style = Application.Current.Resources["TitleTextBlockStyle"] as Style, 
                     Text = "Logs",
                     HorizontalAlignment = HorizontalAlignment.Left,
                     Margin = new Thickness(15,0,0,0)
@@ -222,6 +228,7 @@ namespace MSFree4All
                 g.Children.Add(cg);
                 Grid.SetRow(cg, 1);
                 cg.Children.Add(h);
+                LogsView = new(LogsView.AllLogs);
                 cg.Children.Add(LogsView);
                 Grid.SetRow(h, 0);
                 Grid.SetRow(LogsView, 1);
@@ -230,8 +237,8 @@ namespace MSFree4All
 
                 w.Closed += (_, _) =>
                 {
-                    LogsView.Margin = new Thickness(0);
                     cg.Children.Remove(LogsView);
+                    LogsView = new(LogsView.AllLogs);
                     RootMainFrame.Content = LogsView;
                     navView.FooterMenuItems.Add(NitLogs);
                     navView.SelectedItem = NitLogs;

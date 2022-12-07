@@ -107,10 +107,12 @@ namespace MSFree4All.UserControls
         public bool SelectFiles { get; set; } = true;
         public bool SelectFolders { get; set; } = true;
         public bool SelectFilesOnlyIf { get; set; } = false;
+        public bool GotoFolders { get; set; } = true;
         public IList<string> SelectFilesOnlyIfType { get; private set; } = new List<string>();
         public bool LaunchFilesOnlyIf { get; set; } = false;
         public IList<string> LaunchFilesOnlyIfType { get; private set; } = new List<string>();
         public bool IsDirectoryBarEnabled { get; set; } = true;
+        public IList<string> NeverGotoFolders { get; private set; } = new List<string>();
 
         public IList<string> NoDelete { get; private set; } = new List<string>();
 
@@ -140,7 +142,10 @@ namespace MSFree4All.UserControls
                 {
                     if (item.ItemType == Enums.StorageItemType.Folder)
                     {
-                        BaseFolder = (StorageFolder)item.Item;
+                        if (GotoFolders && !NeverGotoFolders.Contains(item.Item.Name))
+                        {
+                            BaseFolder = (StorageFolder)item.Item;
+                        }
                     }
                     else
                     {
@@ -334,5 +339,25 @@ namespace MSFree4All.UserControls
             SelectionChanged?.Invoke(this, new());
         }
 
+        private async void btnOlocation_Click(object sender, RoutedEventArgs e)
+        {
+            var itm = agv.SelectedItems.FirstOrDefault();
+            if (itm != null)
+            {
+                var f = (StorageItem)itm;
+                if (f.ItemType == Enums.StorageItemType.Folder)
+                {
+                    await Windows.System.Launcher.LaunchFolderAsync((StorageFolder)f.Item);
+                }
+                else
+                {
+                    await Windows.System.Launcher.LaunchFolderAsync(BaseFolder);
+                }
+            }
+            else
+            {
+                await Windows.System.Launcher.LaunchFolderAsync(BaseFolder);
+            }
+        }
     }
 }

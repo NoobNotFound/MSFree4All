@@ -57,6 +57,16 @@
             <toolkit:AdaptiveGridView.ItemTemplate>
                 <DataTemplate x:DataType="models:StorageItem">
                     <Grid>
+                        <Grid.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Click="bthDel_Click" Text="Delete" Icon="Delete"/>
+                                <MenuFlyoutItem Click="btnOlocation_Click" Text="Open in file explorer">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE8A7;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Grid.ContextFlyout>
                         <Grid Padding="10" x:DefaultBindMode="OneWay">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto"/>

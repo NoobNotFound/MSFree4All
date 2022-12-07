@@ -302,17 +302,22 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem Click="MitBMedia_Click" x:Name="MitBMedia" Text="Install while downloading">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xECAA;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                             <MenuFlyoutItem Click="MitDMedia_Click" x:Name="MitDMedia" Text="Create an Installation Media">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xe896;"/>
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem x:Name="MitIMedia" Text="Install from an Installation Media">
+                            <MenuFlyoutItem x:Name="MitIMedia" Click="MitIMedia_Click" Text="Install from an Installation Media">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE777;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem x:Name="MitISOMedia" Text="Create an ISO from an Installation Media">
+                            <MenuFlyoutItem x:Name="MitISOMedia" Click="MitISOMedia_Click"  Text="Create an ISO from an Installation Media">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE958;" />
                                 </MenuFlyoutItem.Icon>
@@ -337,13 +342,27 @@
                         <KeyboardAccelerator Modifiers="Control" Key="S"/>
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton x:Name="btnLoadXML" Click="btnLoadXML_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
+                <AppBarButton ToolTipService.ToolTip="Load Configuration.xml" Label="Load Config" >
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xe8e5;"/>
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control" Key="O"/>
                     </AppBarButton.KeyboardAccelerators>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem x:Name="MitLoadXMLDeploys" Click="MitLoadXMLDeploys_Click"  Text="Load from deployments">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE9D5;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="btnLoadXML_Click"  Text="Load from device">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE7F8;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton x:Name="btnDeployMents" Click="btnDeployMents_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Deployments" >
                     <AppBarButton.Icon>

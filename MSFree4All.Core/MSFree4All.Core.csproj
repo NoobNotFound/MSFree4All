@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="DiscUtils" Version="0.16.13" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.221116.1" />
 	  <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.25247-preview" />
   </ItemGroup>

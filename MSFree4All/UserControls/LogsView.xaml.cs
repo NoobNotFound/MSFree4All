@@ -6,26 +6,61 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.Wallet;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
 namespace MSFree4All.Models
 {
+    public class SubLog : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void Set<T>(ref T ob, T value)
+        {
+            ob = value;
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+        }
+        private string _Message;
+        public string Message { get => _Message; set => Set(ref _Message, value); }
+        private InfoBarSeverity _Severty;
+        public InfoBarSeverity Severity { get => _Severty; set => Set(ref _Severty, value); }
+        public string SevertyString
+        {
+            get => Severity switch
+            {
+                InfoBarSeverity.Error => "Error",
+                InfoBarSeverity.Warning => "Warning",
+                InfoBarSeverity.Success => "Success",
+                _ => "Message",
+            };
+        }
+        public DateTime Time { get; private set; }
+        public SubLog(string message, InfoBarSeverity severity)
+        {
+            Message = message;
+            Severity = severity;
+            Time = DateTime.Now;
+        }
+    }
     public interface Log : INotifyPropertyChanged
     {
         public string Content { get; set; }
+        public bool LoadSubLogs { get; set; }
         public object UniqueThings { get; set; }
         public DateTime Time { get; set; }
         public int ID { get; set; }
         public void OnPropertyChanged(string propertyName);
         public InfoBarSeverity Severity { get; set; }
         public ObservableCollection<UIElement> CustomControls { get; set; }
+        public ObservableCollection<SubLog> SubLogs { get; set; }
 
     }
     public class StringLog : Log
@@ -46,7 +81,13 @@ namespace MSFree4All.Models
         public ObservableCollection<UIElement> _CustomControls;
         public ObservableCollection<UIElement> CustomControls { get => _CustomControls; set => Set(ref _CustomControls, value); }
 
-        public StringLog(string content, DateTime time, int iD,InfoBarSeverity severity, object uniqueThings = null,ObservableCollection<UIElement> customCOntrols = null)
+        public ObservableCollection<SubLog> _SubLogs = new();
+        public ObservableCollection<SubLog> SubLogs { get => _SubLogs; set => Set(ref _SubLogs, value); }
+
+        private bool _LoadSubLogs = false;
+        public bool LoadSubLogs { get => _LoadSubLogs; set => Set(ref _LoadSubLogs, value); }
+
+        public StringLog(string content, DateTime time, int iD,InfoBarSeverity severity, object uniqueThings = null,ObservableCollection<UIElement> customCOntrols = null, ObservableCollection<SubLog> subLogs = null)
         {
             Content = content;
             Time = time;
@@ -54,6 +95,7 @@ namespace MSFree4All.Models
             this.Severity = severity;
             UniqueThings = uniqueThings;
             CustomControls = customCOntrols;
+            SubLogs = subLogs ?? new();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -95,7 +137,12 @@ namespace MSFree4All.Models
         public ObservableCollection<UIElement> _CustomControls;
         public ObservableCollection<UIElement> CustomControls { get => _CustomControls; set => Set(ref _CustomControls, value); }
 
-        public ProgressLog(string content, DateTime time, int iD,int progress = 0,InfoBarSeverity severity = InfoBarSeverity.Informational,bool isIndeterminate = false,object uniquethings = null, ObservableCollection<UIElement> customCOntrols = null)
+        public ObservableCollection<SubLog> _SubLogs = new();
+        public ObservableCollection<SubLog> SubLogs { get => _SubLogs; set => Set(ref _SubLogs, value); }
+
+        private bool _LoadSubLogs = false;
+        public bool LoadSubLogs { get => _LoadSubLogs; set => Set(ref _LoadSubLogs, value); }
+        public ProgressLog(string content, DateTime time, int iD,int progress = 0,InfoBarSeverity severity = InfoBarSeverity.Informational,bool isIndeterminate = false,object uniquethings = null, ObservableCollection<UIElement> customCOntrols = null, ObservableCollection<SubLog> subLogs = null)
         {
             Content = content;
             Time = time;
@@ -105,6 +152,7 @@ namespace MSFree4All.Models
             UniqueThings = uniquethings;
             Severity = severity;
             CustomControls = customCOntrols;
+            SubLogs = subLogs ?? new();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -144,6 +192,13 @@ namespace MSFree4All.UserControls
         {
             this.InitializeComponent();
             lv.ItemsSource = Logs;
+        }
+        public LogsView(IEnumerable<Models.Log> logs)
+        {
+            this.InitializeComponent();
+            Logs = new(logs);
+            lv.ItemsSource = Logs;
+            lastID = logs.Count();
         }
         public int AddProgressLog(string content, int progress = 0, InfoBarSeverity severity = InfoBarSeverity.Informational,bool IsIndeterminate = false,object UniqueThings = null, ObservableCollection<UIElement> customCOntrols = null)
         {
@@ -268,6 +323,26 @@ namespace MSFree4All.UserControls
                 System.Diagnostics.Debug.WriteLine(ex.ToString());
                 return false;
             }
+        }
+        public bool AddSubLog(int ID, Models.SubLog sublog)
+        {
+            try
+            {
+                Logs.FirstOrDefault(l => l.ID == ID).SubLogs.Add(sublog);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                return false;
+            }
+        }
+
+        private void btnSubLog_Click(object sender, RoutedEventArgs e)
+        {
+            var log = ((sender as Button).DataContext as Models.Log);
+            log.LoadSubLogs = !log.LoadSubLogs;
+            
         }
     }
 }

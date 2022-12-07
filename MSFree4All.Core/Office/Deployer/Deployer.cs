@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using MSFree4All.Core.Office.Deployer.Enums;
 using MSFree4All.Core;
 using System.Diagnostics;
+using Microsoft.UI.Xaml.Controls;
+using Windows.Storage;
 
 namespace MSFree4All.Core.Office.Deployer.EventArgs
 {
@@ -31,6 +33,7 @@ namespace MSFree4All.Core.Office.Deployer
         public string BaseFolderPath { get; set; }
 
         public string ConfigurationPath { get => BaseFolderPath + "\\Configuration.xml"; }
+        public string ISOScriptPath { get => BaseFolderPath + "\\ISOCreator.ps1"; }
         //public string BatchFilePath { get => BaseFolderPath + "\\run.bat"; }
         public string Destination { get; set; }
         public string SourcePath { get; set; }
@@ -80,7 +83,7 @@ namespace MSFree4All.Core.Office.Deployer
         /// <summary>
         /// Starts Deploy using the <paramref name="xML"/> and other infomation
         /// </summary>
-        public async Task<StringErrorsList> Deploy(DeployType deployType, string xML)
+        public async Task<StringErrorsList> Deploy(DeployType deployType, string xML,string ISOPath = null)
         {
             var errors = new StringErrorsList("Errors");
             if (!IsIntialized)
@@ -98,7 +101,7 @@ namespace MSFree4All.Core.Office.Deployer
                 {
                     await File.WriteAllTextAsync(ConfigurationPath, xML);
                     Process proc = new();
-                    if(deployType == DeployType.CreateMedia)
+                    if(deployType == DeployType.Download)
                     {
                         proc.StartInfo = new(SetupPath)
                         {
@@ -106,11 +109,42 @@ namespace MSFree4All.Core.Office.Deployer
                             WindowStyle = ProcessWindowStyle.Hidden,
                             Arguments = $"/download \"{ConfigurationPath}\""
                         };
-                        Util.ProcessUtil.AddProcessAndStart(proc);
+                        Util.ProcessUtil.AddProcessAndStart(proc,"Office Downloader");
                     }
-                    else if(deployType == DeployType.InstallFromMedia)
+                    else if (deployType == DeployType.Configure)
                     {
-
+                        proc.StartInfo = new(SetupPath)
+                        {
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            Arguments = $"/configure \"{ConfigurationPath}\""
+                        };
+                        Util.ProcessUtil.AddProcessAndStart(proc,"Office Setup");
+                    }
+                    else if(deployType == DeployType.ISOFromMedia)
+                    {
+                        var script = Consts.ISOScript.Replace("{ISOPath}", ISOPath).Replace("{BasePath}",BaseFolderPath);
+                        await File.WriteAllTextAsync(ISOScriptPath, script);
+                        await File.WriteAllTextAsync(BaseFolderPath + "\\RunMe.bat", ".\\setup.exe /configure Configuration.xml");
+                        proc.StartInfo = new("powershell.exe")
+                        {
+                            Arguments = $"-executionpolicy remotesigned -File \"{ISOScriptPath}\""
+                        };
+                        var u = Util.ProcessUtil.CreateUtilAndAddProcess(proc,"ISO Creator");
+                        Util.ProcessUtil.OutputReceived += async (s, e) =>
+                        {
+                            if (e.ID == u.ID && e.Log.Message == "Exit")
+                            {
+                                File.Delete(ISOScriptPath);
+                                File.Delete(BaseFolderPath + "\\RunMe.bat");
+                                try
+                                {
+                                    _ = (await StorageFolder.GetFolderFromPathAsync("BaseFolderPath + \"\\\\Temp\"")).DeleteAsync();
+                                }
+                                catch { }
+                            }
+                        };
+                        u.StartWithEvents();
                     }
                 }
                 else

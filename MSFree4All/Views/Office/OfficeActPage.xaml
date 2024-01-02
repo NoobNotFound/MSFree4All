@@ -1,0 +1,40 @@
+<Page
+    x:Class="MSFree4All.Views.OfficeActPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MSFree4All.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:NoobUI="using:MSFree4All.UserControls"
+    mc:Ignorable="d">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Padding="6" Margin="0,0,6,0" Spacing="4">
+            <StackPanel.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition/>
+                </TransitionCollection>
+            </StackPanel.ChildrenTransitions>
+            <!--#region  2016-->
+            <NoobUI:NicExpander Tag="2016" Click="NicExpander_Click" Title="Activate as Office 2016" Icon="&#xE192;" Description="Activates the current Office version as Office 2016 even though some other version is installed." ExpanderStyle="Button">
+                <NoobUI:NicExpander.HeaderControls>
+                    <FontIcon Glyph="&#xE76C;" FontWeight="SemiBold" FontSize="14"/>
+                </NoobUI:NicExpander.HeaderControls>
+            </NoobUI:NicExpander>
+            <!--#endregion-->
+            <!--#region  2019-->
+            <NoobUI:NicExpander Tag="2019" Click="NicExpander_Click" Title="Activate as Office 2019" Icon="&#xE192;" Description="Activates the current Office version as Office 2019 even though some other version is installed." ExpanderStyle="Button">
+                <NoobUI:NicExpander.HeaderControls>
+                    <FontIcon Glyph="&#xE76C;" FontWeight="SemiBold" FontSize="14"/>
+                </NoobUI:NicExpander.HeaderControls>
+            </NoobUI:NicExpander>
+            <!--#endregion-->
+            <!--#region  Diactivate-->
+            <NoobUI:NicExpander Tag="Diactivate" Click="NicExpander_Click" Title="Diactivate" Icon="&#xEC7A;" Description="Diactivates the office only if activated with KMS" ExpanderStyle="Button">
+                <NoobUI:NicExpander.HeaderControls>
+                    <FontIcon Glyph="&#xE76C;" FontWeight="SemiBold" FontSize="14"/>
+                </NoobUI:NicExpander.HeaderControls>
+            </NoobUI:NicExpander>
+            <!--#endregion-->
+        </StackPanel>
+    </ScrollViewer>
+</Page>

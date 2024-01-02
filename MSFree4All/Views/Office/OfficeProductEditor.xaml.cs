@@ -32,8 +32,8 @@ namespace MSFree4All.Views
         public OfficeProductEditor()
         {
             this.InitializeComponent();
-            this.Count = MainCore.Office.SelectedProductCount;
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            this.Count = MainCore.SelectedProductCount;
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -53,7 +53,7 @@ namespace MSFree4All.Views
         private void mitChooseProduct_Click(object sender, RoutedEventArgs e)
         {
             var s = ((MenuFlyoutItem)sender);
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if(item.Count == Count)
                 {
@@ -67,7 +67,7 @@ namespace MSFree4All.Views
 
         private void btnAddLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -109,7 +109,7 @@ namespace MSFree4All.Views
 
         private void txtLang_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -129,7 +129,7 @@ namespace MSFree4All.Views
 
         private void btnRemoveLang_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
@@ -147,12 +147,12 @@ namespace MSFree4All.Views
 
         private void btnDel_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {
-                    MainCore.Office.OfficeCore.Configuration.Add.Products.Remove(item);
-                    OfficeMainPage.MainFrame.Navigate(typeof(OfficePage),null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
+                    MainCore.OfficeCore.Configuration.Add.Products.Remove(item);
+                     OfficeMainPage.Navigate(typeof(OfficePage));
                     return;
                 }
             }
@@ -160,10 +160,10 @@ namespace MSFree4All.Views
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            var errors = MainCore.Office.OfficeCore.Configuration.Add.CheckProductErrors(Count);
+            var errors = MainCore.OfficeCore.Configuration.Add.CheckProductErrors(Count);
             if (errors.Count() == 0)
             {
-                OfficeMainPage.MainFrame.Navigate(typeof(OfficePage), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromLeft });
+                 OfficeMainPage.Navigate(typeof(OfficePage));
             }
             else
             {
@@ -175,7 +175,7 @@ namespace MSFree4All.Views
         private void txtPIDKEY_TextChanged(object sender, TextChangedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == Count)
                 {

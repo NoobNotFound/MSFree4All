@@ -10,5 +10,7 @@ namespace MSFree4All.Core.Office.Models
     {
         public int Severity { get; set; }
         public string Message { get; set; }
+        public bool PopUp { get; set; }
+        public string PopUpTitle { get; set; }
     }
 }

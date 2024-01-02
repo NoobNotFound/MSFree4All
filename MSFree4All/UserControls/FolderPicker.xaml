@@ -17,7 +17,11 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Padding="5" Grid.Row="0">
+        <Grid 
+            BorderBrush="{ThemeResource AppBarSeparatorForegroundThemeBrush}" 
+            BorderThickness="0,0,0,0.5"
+            Padding="6" 
+            Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
@@ -43,9 +47,13 @@
             </Button>
         </Grid>
         <ProgressBar IsIndeterminate="True" Grid.Row="1" Margin="5" HorizontalAlignment="Stretch" x:Name="pbLoading" Visibility="Collapsed"/>
-        <toolkit:AdaptiveGridView
+        <Grid Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                
+            </Grid.ColumnDefinitions>
+            <toolkit:AdaptiveGridView
             x:Name="agv"
-            Grid.Row="2"
+                Grid.Column="1"
             animations:ItemsReorderAnimation.Duration="00:00:00.3750000"
             SelectionMode="{x:Bind SelectionMode,Mode=OneWay}"
             ItemsSource="{x:Bind ItemsSource,Mode=OneWay}"
@@ -53,32 +61,33 @@
             SelectionChanged="agv_SelectionChanged"
             FlowDirection="LeftToRight"
             ItemClick="AdaptiveGridView_ItemClick">
-            
-            <toolkit:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:StorageItem">
-                    <Grid>
-                        <Grid.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Click="bthDel_Click" Text="Delete" Icon="Delete"/>
-                                <MenuFlyoutItem Click="btnOlocation_Click" Text="Open in file explorer">
-                                    <MenuFlyoutItem.Icon>
-                                        <FontIcon Glyph="&#xE8A7;"/>
-                                    </MenuFlyoutItem.Icon>
-                                </MenuFlyoutItem>
-                            </MenuFlyout>
-                        </Grid.ContextFlyout>
-                        <Grid Padding="10" x:DefaultBindMode="OneWay">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Image Width="100" Grid.Row="0" Margin="10" Source="{x:Bind Thumbnail}"/>
-                            <TextBlock HorizontalAlignment="Center" Text="{x:Bind DisplayName()}" Grid.Row="1" TextTrimming="CharacterEllipsis"/>
+
+                <toolkit:AdaptiveGridView.ItemTemplate>
+                    <DataTemplate x:DataType="models:StorageItem">
+                        <Grid>
+                            <Grid.ContextFlyout>
+                                <MenuFlyout Opened="MenuFlyout_Opened">
+                                    <MenuFlyoutItem Click="bthDel_Click" Text="Delete" Icon="Delete"/>
+                                    <MenuFlyoutItem Click="btnOlocation_Click" Text="Open in file explorer">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE8A7;"/>
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
+                            <Grid Padding="10" x:DefaultBindMode="OneWay">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <Image Width="100" Grid.Row="0" Margin="10" Source="{x:Bind Thumbnail}"/>
+                                <TextBlock HorizontalAlignment="Center" Text="{x:Bind DisplayName()}" Grid.Row="1" TextTrimming="CharacterEllipsis"/>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </DataTemplate>
-            </toolkit:AdaptiveGridView.ItemTemplate>
-        </toolkit:AdaptiveGridView>
+                    </DataTemplate>
+                </toolkit:AdaptiveGridView.ItemTemplate>
+            </toolkit:AdaptiveGridView>
+        </Grid>
         <TextBlock Text="Empty" Visibility="Collapsed" x:Name="txtEmpty" Grid.Row="2" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center"  />
     </Grid>
 </UserControl>

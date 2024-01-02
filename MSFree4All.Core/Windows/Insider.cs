@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MSFree4All.Core.Office.Enums
+namespace MSFree4All.Core.Windows
 {
-    public enum Architecture
+    public class Insider
     {
-        x64 = 64,
-        x86 = 32,
-        AutoDetect
     }
 }

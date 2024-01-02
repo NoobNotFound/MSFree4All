@@ -119,12 +119,13 @@ namespace MSFree4All.Helpers
     public class MicaBackground
     {
         private readonly Window _window;
-        private MicaController _micaController = new();
+        private MicaController _micaController;
         private SystemBackdropConfiguration _backdropConfiguration = new();
         private readonly WindowsSystemDispatcherQueueHelper _dispatcherQueueHelper = new();
 
-        public MicaBackground(Window window)
+        public MicaBackground(Window window, MicaKind kind)
         {
+            _micaController = new() { Kind = kind };
             _window = window;
         }
 

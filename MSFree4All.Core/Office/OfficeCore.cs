@@ -125,7 +125,111 @@ namespace MSFree4All.Core.Office
         }
         #endregion
 
-        public const string ISOScript = "cd \"{BasePath}\"\r\nif(Test-Path -Path \"Office\")\r\n{\r\n    echo \"{ \"\"Message\"\": \"\"Copying Files.\"\", \"\"Severity\"\": 0}\"\r\n    if(Test-Path -Path \"Temp\")\r\n    {\r\n         Remove-Item \"Temp\" -Recurse -Force -Confirm:$false\r\n    }\r\n    New-Item -Path \"Temp\" -ItemType Directory\r\n    Copy-Item \"Office\" -Destination \"Temp\" -recurse -Force\r\n    Copy-Item -Path \"setup.exe\" -Destination \"Temp\" -PassThru\r\n    Copy-Item -Path \"Configuration.xml\" -Destination \"Temp\" -PassThru\r\n    Copy-Item -Path \"RunMe.bat\" -Destination \"Temp\" -PassThru\r\n        \r\n    function WriteIStreamToFile([__ComObject] $istream, [string] $fileName)\r\n    {\r\n\r\n        $cp = New-Object CodeDom.Compiler.CompilerParameters\r\n        $cp.CompilerOptions = \"/unsafe\"\r\n        $cp.WarningLevel = 4\r\n        $cp.TreatWarningsAsErrors = $true\r\n\r\n        Add-Type -CompilerParameters $cp -TypeDefinition @\"\r\nusing System;\r\nusing System.IO;\r\nusing System.Runtime.InteropServices.ComTypes;\r\n\r\nnamespace My\r\n{\r\n\r\npublic static class FileUtil {\r\npublic static void WriteIStreamToFile(object i, string fileName) {\r\nIStream inputStream = i as IStream;\r\nFileStream outputFileStream = File.OpenWrite(fileName);\r\nint bytesRead = 0;\r\nint offset = 0;\r\nbyte[] data;\r\ndo {\r\ndata = Read(inputStream, 2048, out bytesRead);\r\noutputFileStream.Write(data, 0, bytesRead);\r\noffset += bytesRead;\r\n} while (bytesRead == 2048);\r\noutputFileStream.Flush();\r\noutputFileStream.Close();\r\n}\r\n\r\nunsafe static private byte[] Read(IStream stream, int toRead, out int read) {\r\nbyte[] buffer = new byte[toRead];\r\nint bytesRead = 0;\r\nint* ptr = &bytesRead;\r\nstream.Read(buffer, toRead, (IntPtr)ptr);\r\nread = bytesRead;\r\nreturn buffer;\r\n}\r\n}\r\n\r\n}\r\n\"@\r\n\r\n        [My.FileUtil]::WriteIStreamToFile($istream, $fileName)\r\n    }\r\n\r\n    function createISO([string]$VolName,[string]$Folder,[bool]$IncludeRoot,[string]$ISOFile)\r\n    {\r\n\r\n        $FsiFileSystemISO9660   = 1\r\n        $FsiFileSystemJoliet    = 2\r\n        $FsiFileSystemUDF      = 4\r\n\r\n        $fsi = New-Object -ComObject IMAPI2FS.MsftFileSystemImage\r\n\r\n        #$fsi.FileSystemsToCreate = $FsiFileSystemISO9660 + $FsiFileSystemJoliet\r\n\r\n        $fsi.FileSystemsToCreate = $FsiFileSystemUDF\r\n        #When FreeMediaBlocks is set to 0 it allows the ISO file to be with unlimited size\r\n        $fsi.FreeMediaBlocks = 0\r\n        $fsi.VolumeName = $VolName\r\n\r\n        $fsi.Root.AddTree($Folder, $IncludeRoot)\r\n\r\n        WriteIStreamToFile $fsi.CreateResultImage().ImageStream $ISOFile\r\n    }\r\n    \r\n    echo \"{ \"\"Message\"\": \"\"Generating the ISO.\"\", \"\"Severity\"\": 0}\"\r\n    createISO \"Microsoft Office\" \"{BasePath}\\Temp\" $false \"{ISOPath}\"\r\n    echo \"{ \"\"Message\"\": \"\"{ISOPath}\"\", \"\"Severity\"\": 0}\"\r\n    echo \"{ \"\"Message\"\": \"\"ISO file created.\"\", \"\"Severity\"\": 1}\"\r\n\r\n\r\n\r\n}\r\nelse\r\n{\r\n   echo \"{ \"\"Message\"\": \"\"Failed.to create the ISO \\n Cannot locate the Installation Media.\"\", \"\"Severity\"\": 3}\"\r\n}\r\n\r\necho \"{ \"\"Message\"\": \"\"Exit\"\", \"\"Severity\"\": 0}\"\r\nRemove-Item \"Temp\" -Recurse -Force -Confirm:$false";
+        public const string ISOScript = "cd \"{BasePath}\"\r\nif(Test-Path -Path \"Office\")\r\n{\r\n    echo \"{ \"\"Message\"\": \"\"Copying Files.\"\", \"\"Severity\"\": 0}\"\r\n    if(Test-Path -Path \"Temp\")\r\n    {\r\n         Remove-Item \"Temp\" -Recurse -Force -Confirm:$false\r\n    }\r\n    New-Item -Path \"Temp\" -ItemType Directory\r\n    Copy-Item \"Office\" -Destination \"Temp\" -recurse -Force\r\n    Copy-Item -Path \"setup.exe\" -Destination \"Temp\" -PassThru\r\n    Copy-Item -Path \"Configuration.xml\" -Destination \"Temp\" -PassThru\r\n    Copy-Item -Path \"RunMe.bat\" -Destination \"Temp\" -PassThru\r\n        \r\n    function WriteIStreamToFile([__ComObject] $istream, [string] $fileName)\r\n    {\r\n\r\n        $cp = New-Object CodeDom.Compiler.CompilerParameters\r\n        $cp.CompilerOptions = \"/unsafe\"\r\n        $cp.WarningLevel = 4\r\n        $cp.TreatWarningsAsErrors = $true\r\n\r\n        Add-Type -CompilerParameters $cp -TypeDefinition @\"\r\nusing System;\r\nusing System.IO;\r\nusing System.Runtime.InteropServices.ComTypes;\r\n\r\nnamespace My\r\n{\r\n\r\npublic static class FileUtil {\r\npublic static void WriteIStreamToFile(object i, string fileName) {\r\nIStream inputStream = i as IStream;\r\nFileStream outputFileStream = File.OpenWrite(fileName);\r\nint bytesRead = 0;\r\nint offset = 0;\r\nbyte[] data;\r\ndo {\r\ndata = Read(inputStream, 2048, out bytesRead);\r\noutputFileStream.Write(data, 0, bytesRead);\r\noffset += bytesRead;\r\n} while (bytesRead == 2048);\r\noutputFileStream.Flush();\r\noutputFileStream.Close();\r\n}\r\n\r\nunsafe static private byte[] Read(IStream stream, int toRead, out int read) {\r\nbyte[] buffer = new byte[toRead];\r\nint bytesRead = 0;\r\nint* ptr = &bytesRead;\r\nstream.Read(buffer, toRead, (IntPtr)ptr);\r\nread = bytesRead;\r\nreturn buffer;\r\n}\r\n}\r\n\r\n}\r\n\"@\r\n\r\n        [My.FileUtil]::WriteIStreamToFile($istream, $fileName)\r\n    }\r\n\r\n    function createISO([string]$VolName,[string]$Folder,[bool]$IncludeRoot,[string]$ISOFile)\r\n    {\r\n\r\n        $FsiFileSystemISO9660   = 1\r\n        $FsiFileSystemJoliet    = 2\r\n        $FsiFileSystemUDF      = 4\r\n\r\n        $fsi = New-Object -ComObject IMAPI2FS.MsftFileSystemImage\r\n\r\n        #$fsi.FileSystemsToCreate = $FsiFileSystemISO9660 + $FsiFileSystemJoliet\r\n\r\n        $fsi.FileSystemsToCreate = $FsiFileSystemUDF\r\n        #When FreeMediaBlocks is set to 0 it allows the ISO file to be with unlimited size\r\n        $fsi.FreeMediaBlocks = 0\r\n        $fsi.VolumeName = $VolName\r\n\r\n        $fsi.Root.AddTree($Folder, $IncludeRoot)\r\n\r\n        WriteIStreamToFile $fsi.CreateResultImage().ImageStream $ISOFile\r\n    }\r\n    \r\n    echo \"{ \"\"Message\"\": \"\"Generating the ISO.\"\", \"\"Severity\"\": 0}\"\r\n    createISO \"Microsoft Office\" \"{BasePath}\\Temp\" $false \"{ISOPath}\"\r\n    echo \"{ \"\"Message\"\": \"\"{ISOPath}\"\", \"\"Severity\"\": 0}\"" +
+            "\r\n    echo \"{ \"\"Message\"\": \"\"ISO file created.\"\", \"\"Severity\"\": 1, \"PopUp\": true, \"PopUpTitle\": \"Office ISO creator\"}\"" +
+            "\r\n\r\n\r\n\r\n}\r\nelse\r\n{" +
+            "\r\n   echo \"{ \"\"Message\"\": \"\"Failed.to create the ISO \\n Cannot locate the Installation Media.\"\", \"\"Severity\"\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office ISO creator\"}\"" +
+            "\r\n}\r\n\r\necho \"{ \"\"Message\"\": \"\"Exit\"\", \"\"Severity\"\": 0}\"\r\nRemove-Item \"Temp\" -Recurse -Force -Confirm:$false";
+        public static string OSPPDir => File.Exists(@"C:\Program Files\Microsoft Office\Office16\ospp.vbs") ? @"C:\Program Files\Microsoft Office\" : @"C:\Program Files (x86)\Microsoft Office\";
+        public static string O2016cript => "@echo off" +
+            "\necho { \"Message\": \"Starting script.\", \"Severity\": 0}" +
+            "\necho { \"Message\": \"Checking Office installed locations.\", \"Severity\": 0}" +
+            "\nset osppdir=" + OSPPDir +
+            "\necho { \"Message\": \"Converting digital licenses.\", \"Severity\": 0}" +
+            "\n(for /f %%x in ('dir /b \"%osppdir%root\\Licenses16\\proplusvl_kms*.xrm-ms\"') do cscript ospp.vbs /inslic:\"%osppdir%root\\Licenses16\\%%x\" >nul)" +
+            "\n(for /f %%x in ('dir /b \"%osppdir%root\\Licenses16\\proplusvl_mak*.xrm-ms\"') do cscript ospp.vbs /inslic:\"%osppdir%root\\Licenses16\\%%x\" >nul)" +
+            "\ncd /d \"%osppdir%Office16\\\" || goto locateFailed" +
+            "\necho { \"Message\": \"Setting server port.\", \"Severity\": 0}" +
+            "\ncscript //nologo slmgr.vbs /ckms >nul" +
+            "\ncscript //nologo ospp.vbs /setprt:1688 >nul" +
+            "\necho { \"Message\": \"Unistalling old product keys.\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /unpkey:WFG99 >nul" +
+            "\ncscript //nologo ospp.vbs /unpkey:DRTFM >nul" +
+            "\ncscript //nologo ospp.vbs /unpkey:BTDRB >nul" +
+            "\necho { \"Message\": \"Installing Product Key...\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /inpkey:XQNVK-8JYDB-WJ9W3-YJ8YR-WFG99 >nul || goto productFailed" +
+            "\nset i=1" +
+            "\n:server" +
+            "\necho { \"Message\": \"Try setting KMS server %i%.\", \"Severity\": 0}\"" +
+            "\nif %i%==1 set KMS=kms7.MSGuides.com" +
+            "\nif %i%==2 set KMS=s8.uk.to" +
+            "\nif %i%==3 set KMS=s9.us.to" +
+            "\nif %i%==4 goto notsupported" +
+            "\ncscript //nologo ospp.vbs /sethst:%KMS% >nul" +
+            "\necho { \"Message\": \"Try activating.\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /act | find /i \"successful\" && (goto success) || ( echo { \"Message\": \"The connection to the KMS server %i% failed!\", \"Severity\": 2}  & set /a i+=1 & goto server)" +
+            "\n:notsupported" +
+            "\necho { \"Message\": \"Activation Failed (Connecting to KMS servers Failed).\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2016 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:productFailed" +
+            "\necho { \"Message\": \"Activation Failed.\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2016 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:locateFailed" +
+            "\necho { \"Message\": \"Activation Failed (Locating %osppdir%Office16\\ Failed).\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2016 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:success" +
+            "\necho { \"Message\": \"Activation Done.\", \"Severity\": 1, \"PopUp\": true, \"PopUpTitle\": \"Office 2016 activator (KMS)\"}" +
+            "\n:halt" +
+            "\necho { \"Message\": \"exit.\", \"Severity\": 0}" +
+            "\nstart /b \"\" cmd /c del \"%~f0\"&exit /b";
+        public static string ODeactivate => "@echo off" +
+            "\necho { \"Message\": \"Starting script.\", \"Severity\": 0}" +
+            "\necho { \"Message\": \"Checking Office installed locations.\", \"Severity\": 0}" +
+            "\nset osppdir=" + OSPPDir +
+            "\ncd /d \"%osppdir%Office16\\\" || goto locateFailed" +
+            "\necho { \"Message\": \"Unistalling product keys.\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /unpkey:WFG99 >nul" +
+            "\ncscript //nologo ospp.vbs /unpkey:DRTFM >nul" +
+            "\ncscript //nologo ospp.vbs /unpkey:BTDRB >nul" +
+            "\ncscript //nologo ospp.vbs /unpkey:6MWKP >nul" +
+            "\ngoto success" +
+            "\n:locateFailed" +
+            "\necho { \"Message\": \"Deactivation Failed (Locating %osppdir%Office16\\ Failed).\", \"Severity\": 1, \"PopUp\": true, \"PopUpTitle\": \"Office deactivator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:success" +
+            "\necho { \"Message\": \"Deactivation Done.\", \"Severity\": 1, \"PopUp\": true, \"PopUpTitle\": \"Office deactivator (KMS)\"}" +
+            "\n:halt" +
+            "\necho { \"Message\": \"exit.\", \"Severity\": 0}" +
+            "\nstart /b \"\" cmd /c del \"%~f0\"&exit /b";
+        public static string O2019cript => "@echo off" +
+            "\necho { \"Message\": \"Starting script.\", \"Severity\": 0}" +
+            "\necho { \"Message\": \"Checking Office installed locations.\", \"Severity\": 0}" +
+            "\nset osppdir=" + OSPPDir +
+            "\necho { \"Message\": \"Converting digital licenses.\", \"Severity\": 0}" +
+            "\n(for /f %%x in ('dir /b \"%osppdir%root\\Licenses16\\proplusvl_kms*.xrm-ms\"') do cscript ospp.vbs /inslic:\"%osppdir%root\\Licenses16\\%%x\" >nul)" +
+            "\n(for /f %%x in ('dir /b \"%osppdir%root\\Licenses16\\proplusvl_mak*.xrm-ms\"') do cscript ospp.vbs /inslic:\"%osppdir%root\\Licenses16\\%%x\" >nul)" +
+            "\ncd /d \"%osppdir%Office16\\\" || goto locateFailed" +
+            "\necho { \"Message\": \"Setting server port.\", \"Severity\": 0}" +
+            "\ncscript //nologo slmgr.vbs /ckms >nul" +
+            "\ncscript //nologo ospp.vbs /setprt:1688 >nul" +
+            "\necho { \"Message\": \"Unistalling old product keys.\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /unpkey:6MWKP >nul" +
+            "\necho { \"Message\": \"Installing Product Key...\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /inpkey:NMMKJ-6RK4F-KMJVX-8D9MJ-6MWKP >nul || goto productFailed" +
+            "\nset i=1" +
+            "\n:server" +
+            "\necho { \"Message\": \"Try setting KMS server %i%.\", \"Severity\": 0}\"" +
+            "\nif %i%==1 set KMS=kms7.MSGuides.com" +
+            "\nif %i%==2 set KMS=s8.uk.to" +
+            "\nif %i%==3 set KMS=s9.us.to" +
+            "\nif %i%==4 goto notsupported" +
+            "\ncscript //nologo ospp.vbs /sethst:%KMS% >nul" +
+            "\necho { \"Message\": \"Try activating.\", \"Severity\": 0}" +
+            "\ncscript //nologo ospp.vbs /act | find /i \"successful\" && (goto success) || ( echo { \"Message\": \"The connection to the KMS server %i% failed!\", \"Severity\": 2}  & set /a i+=1 & goto server)" +
+            "\n:notsupported" +
+            "\necho { \"Message\": \"Activation Failed (Connecting to KMS servers Failed).\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2019 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:productFailed" +
+            "\necho { \"Message\": \"Activation Failed.\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2019 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:locateFailed" +
+            "\necho { \"Message\": \"Activation Failed (Locating %osppdir%Office16\\ Failed).\", \"Severity\": 3, \"PopUp\": true, \"PopUpTitle\": \"Office 2019 activator (KMS)\"}" +
+            "\ngoto halt" +
+            "\n:success" +
+            "\necho { \"Message\": \"Activation Done.\", \"Severity\": 1, \"PopUp\": true, \"PopUpTitle\": \"Office 2019 activator (KMS)\"}" +
+            "\n:halt" +
+            "\necho { \"Message\": \"exit.\", \"Severity\": 0}" +
+            "\nstart /b \"\" cmd /c del \"%~f0\"&exit /b";
     }
     
     public class Display
@@ -581,6 +685,11 @@ namespace MSFree4All.Core.Office
         public Deployer.Deployer Deployer { get; set; } = new();
 
         /// <summary>
+        /// The activator and the diactivator
+        /// </summary>
+        public Activator Activator { get; set; } = new();
+
+        /// <summary>
         /// An unique number used for identify an Office Product
         /// </summary>
         public int OfficeProductsIDsCount = 0;
@@ -678,7 +787,7 @@ namespace MSFree4All.Core.Office
                 Errors.Add($"At '{e.LineNumber},{e.LinePosition}' : \"{e.Name}\" is unknown.");
             };
             #endregion
-            XML.Configuration Result = new XML.Configuration();
+            XML.Configuration Result = new();
             using (StringReader reader = new(xml))
             {
                 try

@@ -16,6 +16,11 @@
         </Grid.RowDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0" Padding="0,0,15,0">
             <StackPanel>
+                <StackPanel.ChildrenTransitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition/>
+                    </TransitionCollection>
+                </StackPanel.ChildrenTransitions>
                 <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5,0,0,10" VerticalAlignment="Top" Text="Edit Product" Grid.Row="0"/>
                 <!--#region  Product ID-->
                 <NoobUI:NicExpander Icon="&#xE8C7;" Title="Product ID" Description="Apps For Enterprise is reccomended" ExpanderStyle="Static">

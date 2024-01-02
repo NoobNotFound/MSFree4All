@@ -25,9 +25,14 @@
                                 <FontIcon Glyph="&#xee4a;"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
+                        <NavigationViewItem Tag="OfficeActPage" Content="Activate">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE192;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Windows">
+                <NavigationViewItem Tag="WindowsPage" Content="Windows">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xe7f8;"/>
                     </NavigationViewItem.Icon>

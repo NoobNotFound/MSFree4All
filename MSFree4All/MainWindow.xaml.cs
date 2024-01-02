@@ -36,6 +36,8 @@ namespace MSFree4All
     public sealed partial class MainWindow : Window
     {
         public static Views.OfficeMainPage OfficePage = new();
+        public static Views.OfficeActPage OfficeActPage = new();
+        public static Views.WindowsPage WindowsPage = new();
         public static Frame RootMainFrame;
         public static UserControls.NotificationBar NotificationBar;
         public static UserControls.LogsView LogsView = new();
@@ -68,7 +70,9 @@ namespace MSFree4All
                 this.DispatcherQueue.TryEnqueue(() =>
                 {
                     var logID = LogsView.SearchByUniqueThingsToString(e.ID.ToString()).FirstOrDefault();
-                    LogsView.AddSubLog(logID, new Models.SubLog(e.Log.Message, (InfoBarSeverity)e.Log.Severity));
+                    LogsView.AddSubLog(logID, new Models.SubLog(e.Log.Message.Replace("\n", " \\n "), (InfoBarSeverity)e.Log.Severity));
+                    if (e.Log.PopUp)
+                        e.Log.Message.ToCodeContentDialog(null, e.Log.PopUpTitle).Show();
                 });
             };
             Core.Util.ProcessUtil.ProcessRemoved += (name,id) =>
@@ -168,9 +172,15 @@ namespace MSFree4All
                     {
                         case "OfficePage":
                             if (RootMainFrame.Content != OfficePage)
-                            {
                                 RootMainFrame.Content = OfficePage;
-                            }
+                            break;
+                        case "OfficeActPage":
+                            if (RootMainFrame.Content != OfficeActPage)
+                                RootMainFrame.Content = OfficeActPage;
+                            break;
+                        case "WindowsPage":
+                            if (RootMainFrame.Content != WindowsPage)
+                                RootMainFrame.Content = WindowsPage;
                             break;
                         case "LogsView":
                             if (RootMainFrame.Content != LogsView)
@@ -249,7 +259,7 @@ namespace MSFree4All
                 w.Activate();
                 w.SetWindowSize(600, 500);
                 TitleBarHelper.SetExtendedTitleBar(w, t);
-                new MicaBackground(w).TrySetMicaBackdrop();
+                new MicaBackground(w,MicaKind.Base).TrySetMicaBackdrop();
                 IconHelper.SetIcon(w);
                 w.BringToFront();
             }

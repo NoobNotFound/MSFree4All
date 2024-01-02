@@ -5,6 +5,24 @@
     xmlns:local="using:MSFree4All">
     <Application.Resources>
         <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="/ResourceDictionaries/CustomStyles.xaml" />
+                <ResourceDictionary>
+
+                    <ResourceDictionary.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Dark">
+                            <SolidColorBrush x:Key="ContentDialogSolidBackground" Color="#212121" />
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="Light">
+                            <SolidColorBrush x:Key="ContentDialogSolidBackground" Color="#F3F3F3" />
+                        </ResourceDictionary>
+                    </ResourceDictionary.ThemeDictionaries>
+                </ResourceDictionary>
+                <!-- Other merged dictionaries here -->
+            </ResourceDictionary.MergedDictionaries>
+            
             <StackLayout x:Name="VerticalStackLayout" Orientation="Vertical" Spacing="0"/>
 
             <ResourceDictionary x:Key="TransparentButton">
@@ -16,12 +34,6 @@
                 <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent" />
                 <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent" />
             </ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <ResourceDictionary Source="/ResourceDictionaries/CustomStyles.xaml" />
-                <!-- Other merged dictionaries here -->
-            </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

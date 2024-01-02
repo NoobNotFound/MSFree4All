@@ -223,7 +223,7 @@ namespace MSFree4All.Core
                 public void Start()
                 {
 
-                    System.Threading.Thread t = new System.Threading.Thread(SartWithWaitForExitAndInvoke);
+                    System.Threading.Thread t = new(SartWithWaitForExitAndInvoke);
                     t.Start();
                 }
                 private async void SartWithWaitForExitAndInvoke()
@@ -314,8 +314,40 @@ namespace MSFree4All.Core
                 Process.OutputDataReceived += (s, e) => outputReceived?.Invoke(this, e.Data ?? "");
                 Process.Exited += (s, e) => Exited?.Invoke(this, new EventArgs());
                 outputReceived += (_, e) => Output += "\n" + e;
-                System.Threading.Thread t = new System.Threading.Thread(SartWithWaitForExitAndInvoke);
+                System.Threading.Thread t = new(SartWithWaitForExitAndInvoke);
                 t.Start();
+            }
+            public async Task StartWithEventsAsync(bool hideWindow = true, bool isAdmin = false)
+            {
+                if (hideWindow)
+                {
+                    Process.StartInfo.CreateNoWindow = true;
+                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                }
+                Process.StartInfo.UseShellExecute = false;
+                if (isAdmin) { Process.StartInfo.Verb = "runas"; }
+
+                Process.StartInfo.RedirectStandardError = true;
+                Process.StartInfo.RedirectStandardOutput = true;
+
+
+                Process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+                Process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
+
+                Process.ErrorDataReceived += (s, e) => outputReceived?.Invoke(this, e.Data ?? "");
+                Process.OutputDataReceived += (s, e) => outputReceived?.Invoke(this, e.Data ?? "");
+                Process.Exited += (s, e) => Exited?.Invoke(this, new EventArgs());
+                outputReceived += (_, e) => Output += "\n" + e;
+                Process.Start();
+                Process.BeginErrorReadLine();
+                Process.BeginOutputReadLine();
+                await Process.WaitForExitAsync();
+
+                if (ID != null)
+                {
+                    ProcessRemoved?.Invoke("", ID.Value);
+                    Processes.Remove(Processes.Where(x => x.Item2 == ID.Value).FirstOrDefault());
+                }
             }
 
             private async void SartWithWaitForExitAndInvoke()

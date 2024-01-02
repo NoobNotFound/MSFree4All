@@ -17,7 +17,12 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <ScrollViewer Grid.Row="0" Padding="0,0,15,0" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
+            <StackPanel Spacing="4">
+                <StackPanel.ChildrenTransitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition/>
+                    </TransitionCollection>
+                </StackPanel.ChildrenTransitions>
                 <TextBlock Text="General" FontWeight="SemiBold" Margin="0,0,0,10"/>
                 <!--#region Products-->
                 <NoobUI:NicExpander ExpanderStyle="Default" Icon="&#xe9d5;" Title="Products" Description="The products you want to deploy.">
@@ -79,7 +84,7 @@
                 <!--#endregion-->
 
                 <!--#region  Architecture-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Architecture" Icon="&#xec7a;" Description="The architecture of the all products you want to deploy." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Architecture" Icon="&#xec7a;" Description="The architecture of the all products you want to deploy." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ComboBox SelectionChanged="cmbxArch_SelectionChanged" x:Name="cmbxArch">
                             <ComboBox.Items>
@@ -93,7 +98,7 @@
                 <!--#endregion-->
 
                 <!--#region  Channel-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Channel" Icon="&#xec7a;" Description="The deployment channel of the products. Current is reccomended." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Channel" Icon="&#xec7a;" Description="The deployment channel of the products. Current is reccomended." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ComboBox SelectionChanged="cmbxChannel_SelectionChanged" x:Name="cmbxChannel">
                             <ComboBox.Items>
@@ -112,14 +117,14 @@
                 <!--#endregion-->
 
                 <!--#region Information -->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Information" Icon="&#xe946;" Description="Company name, Description. (Optional)" >
+                <NoobUI:NicExpander Title="Information" Icon="&#xe946;" Description="Company name, Description. (Optional)" >
                     <NoobUI:NicExpander.Controls>
                         <Grid>
                             <StackPanel>
                                 <TextBlock Text="Provide your organization name to set the Company property on office documents" TextWrapping="WrapWholeWords"/>
                                 <TextBox Margin="0,5" x:Name="txtOrgName" TextChanged="txtOrgName_TextChanged" PlaceholderText="Noob's Channel"/>
                                 <TextBlock Text="Provide a description for this configuration" TextWrapping="WrapWholeWords"/>
-                                <TextBox Margin="0,5,0,0" x:Name="txtDescription" TextChanged="txtDescription_TextChanged" AcceptsReturn="True"/>
+                                <TextBox x:Name="txtDescription" TextChanged="txtDescription_TextChanged" AcceptsReturn="True"/>
                             </StackPanel>
                         </Grid>
                     </NoobUI:NicExpander.Controls>
@@ -129,7 +134,7 @@
                 <TextBlock Text="Installation" FontWeight="SemiBold" Margin="0,20,0,10"/>
 
                 <!--#region  Full Version-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Full Version" Icon="&#xec7a;" Description="The excat version (build) you want to deploy." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Full Version" Icon="&#xec7a;" Description="The excat version (build) you want to deploy." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <TextBox TextChanged="txtFullVer_TextChanged" x:Name="txtFullVer" PlaceholderText="16.0.11615.336002"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -137,7 +142,7 @@
                 <!--#endregion-->
 
                 <!--#region  Download Path-->
-                <NoobUI:NicExpander Icon="&#xebd3;" Margin="0,5,0,0" Title="Download Path" Description="Defines where the installation files are downloaded,You must specify a version when using download path." ExpanderStyle="Static">
+                <NoobUI:NicExpander Icon="&#xebd3;" Title="Download Path" Description="Defines where the installation files are downloaded,You must specify a version when using download path." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <TextBox TextChanged="txtDownloadPath_TextChanged" x:Name="txtDownloadPath" PlaceholderText="\\servera\share"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -145,7 +150,7 @@
                 <!--#endregion-->
 
                 <!--#region  Source Path-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Source Path" Icon="&#xec7a;" Description="If the source path is empty, the Office CDN is used by default as the source. In download mode, defines where to save the files." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Source Path" Icon="&#xec7a;" Description="If the source path is empty, the Office CDN is used by default as the source. In download mode, defines where to save the files." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <TextBox TextChanged="txtSourcePath_TextChanged" x:Name="txtSourcePath" PlaceholderText="\\serverb\share"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -153,7 +158,7 @@
                 <!--#endregion-->
 
                 <!--#region  CDN Fallback-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="CDN Fallback" Icon="&#xec7a;" Description="Fallback to the CDN for missing languages." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="CDN Fallback" Icon="&#xec7a;" Description="Fallback to the CDN for missing languages." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ToggleSwitch Toggled="tglCDNFallback_Toggled" OnContent="True" OffContent="False" x:Name="tglCDNFallback"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -161,7 +166,7 @@
                 <!--#endregion-->
 
                 <!--#region  Display None-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Display None" Icon="&#xe8fc;" Description="Difines to display any UI during the installation." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Display None" Icon="&#xe8fc;" Description="Difines to display any UI during the installation." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ToggleSwitch OnContent="True" Toggled="tglDisplay_Toggled" OffContent="False" x:Name="tglDisplay"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -169,7 +174,7 @@
                 <!--#endregion-->
 
                 <!--#region  Force Apps Shutdown-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Close all Office apps" Icon="&#xec7a;" Description="Close all running office apps without asking when the deploy starts." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Close all Office apps" Icon="&#xec7a;" Description="Close all running office apps without asking when the deploy starts." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ToggleSwitch OnContent="True" Toggled="tglForceAppsShutDown_Toggled" OffContent="False" x:Name="tglForceAppsShutDown"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -177,7 +182,7 @@
                 <!--#endregion-->
 
                 <!--#region  Pin Icons-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Pin icons to taskbar" Icon="&#xec7a;" Description="Only available fore windows 7, 8 and 8.1.." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Pin icons to taskbar" Icon="&#xec7a;" Description="Only available fore windows 7, 8 and 8.1.." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ToggleSwitch Toggled="tglPicIcons_Toggled" OnContent="True" OffContent="False" x:Name="tglPicIcons"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -185,7 +190,7 @@
                 <!--#endregion-->
 
                 <!--#region  Upgrade Options-->
-                <NoobUI:NicExpander Margin="0,5,0,0" ExpanderStyle="Default" Icon="&#xe777;" Title="Upgrade Options" Description="Force upgrade, remove MSI versions of office.">
+                <NoobUI:NicExpander ExpanderStyle="Default" Icon="&#xe777;" Title="Upgrade Options" Description="Force upgrade, remove MSI versions of office.">
                     <NoobUI:NicExpander.Controls>
                         <Grid>
                             <StackPanel x:Name="pnlRemMSIApps">
@@ -208,7 +213,7 @@
                 <!--#endregion-->
                 
                 <!--#region  Updates-->
-                <NoobUI:NicExpander Margin="0,5,0,0" ExpanderStyle="Default" Icon="&#xe777;" Title="Updates" Description="Target Version, Deadline, Channel, Update Path">
+                <NoobUI:NicExpander ExpanderStyle="Default" Icon="&#xe777;" Title="Updates" Description="Target Version, Deadline, Channel, Update Path">
                     <NoobUI:NicExpander.Controls>
                         <Grid>
                             <StackPanel>
@@ -262,7 +267,7 @@
                 <TextBlock Text="License &amp; Activation" FontWeight="SemiBold" Margin="0,20,0,10"/>
 
                 <!--#region  Auto Activate-->
-                <NoobUI:NicExpander Margin="0,5,0,0" Title="Auto Activate" Icon="&#xe713;" Description="You can set Auto Activate to True to have the product activate automatically." ExpanderStyle="Static">
+                <NoobUI:NicExpander Title="Auto Activate" Icon="&#xe713;" Description="You can set Auto Activate to True to have the product activate automatically." ExpanderStyle="Static">
                     <NoobUI:NicExpander.HeaderControls>
                         <ToggleSwitch x:Name="tglAutoAct" Toggled="tglAutoAct_Toggled" OnContent="True" OffContent="False"/>
                     </NoobUI:NicExpander.HeaderControls>
@@ -270,7 +275,7 @@
                 <!--#endregion-->
 
                 <!--#region Licensing type-->
-                <NoobUI:NicExpander Margin="0,5,0,0" x:Name="ExpanderLicensing" Title="Product Activation" Icon="&#xe713;" Description="Very optional. You can continue without this">
+                <NoobUI:NicExpander x:Name="ExpanderLicensing" Title="Product Activation" Icon="&#xe713;" Description="Very optional. You can continue without this">
                     <NoobUI:NicExpander.HeaderControls>
                         <ComboBox x:Name="cmbxLicenseType" SelectionChanged="cmbxLicenseType_SelectionChanged">
                             <ComboBox.Items>
@@ -363,14 +368,6 @@
                             </MenuFlyoutItem>
                         </MenuFlyout>
                     </AppBarButton.Flyout>
-                </AppBarButton>
-                <AppBarButton x:Name="btnDeployMents" Click="btnDeployMents_Click" ToolTipService.ToolTip="Load Configuration.xml" Label="Deployments" >
-                    <AppBarButton.Icon>
-                        <FontIcon Glyph="&#xE9D5;" />
-                    </AppBarButton.Icon>
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control" Key="D"/>
-                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </CommandBar>
         </Grid>

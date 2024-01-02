@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
@@ -30,13 +31,16 @@ namespace MSFree4All.Views
             if (MainFrame == null)
             {
                 MainFrame = frame;
-                MainFrame.Navigate(typeof(OfficePage),null, new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo());
+                MainFrame.Navigate(typeof(OfficePage));
             }
             else
             {
                 frame = MainFrame;
             }
-            Helpers.MainCore.Office.OfficeCore.ConfigurationUpdated += (s,e) => MainFrame.Navigate(typeof(OfficePage), null, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
+            Helpers.MainCore.OfficeCore.ConfigurationUpdated += (s,e) => MainFrame.Navigate(typeof(OfficePage));
         }
+        public static void Navigate(Type pageType) =>
+            MainFrame.Navigate(pageType, null, new SuppressNavigationTransitionInfo());
+        
     }
 }

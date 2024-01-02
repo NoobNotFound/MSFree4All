@@ -66,15 +66,15 @@ namespace MSFree4All.Models
 }
 namespace MSFree4All.UserControls
 {
-    public sealed partial class FolderPicker : UserControl,INotifyPropertyChanged
+    public sealed partial class FolderPicker : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler? SelectionChanged;
         public event EventHandler<StorageItem>? FileClicked;
-        private void Set<T>(ref T obj,T value,string name = null)
+        private void Set<T>(ref T obj, T value, string name = null)
         {
             obj = value;
-            PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private ObservableCollection<StorageItem> _ItemsSource = new();
@@ -99,7 +99,7 @@ namespace MSFree4All.UserControls
         private bool _ItemsClickEnabled = true;
         public bool ItemsClickEnabled { get => _ItemsClickEnabled; set => Set(ref _ItemsClickEnabled, value); }
 
-       
+
         public bool FileClickEnabled { get; set; } = true;
         public bool FileClickOnlyIf { get; set; } = false;
         public IList<string> FileClickOnlyIfType { get; set; } = new List<string>();
@@ -152,7 +152,7 @@ namespace MSFree4All.UserControls
                         var file = (StorageFile)item.Item;
                         if (FileClickEnabled && ((FileClickOnlyIf && FileClickOnlyIfType.Contains(file.FileType.ToLower())) || !FileClickOnlyIf))
                         {
-                            FileClicked?.Invoke(this,item);
+                            FileClicked?.Invoke(this, item);
                         }
                         if (LaunchFiles)
                         {
@@ -180,13 +180,13 @@ namespace MSFree4All.UserControls
         public async void Refresh()
         {
             this.IsEnabled = false;
-            if(RootFolder != null && !BaseFolder.Path.Contains(RootFolder.Path))
+            if (RootFolder != null && !BaseFolder.Path.Contains(RootFolder.Path))
             {
                 BaseFolder = RootFolder;
             }
             pbLoading.Visibility = Visibility.Visible;
-            var fos = await(await BaseFolder.GetFoldersAsync()).ToStorageItemsArray();
-            var fis = await(await BaseFolder.GetFilesAsync()).ToStorageItemsArray();
+            var fos = await (await BaseFolder.GetFoldersAsync()).ToStorageItemsArray();
+            var fis = await (await BaseFolder.GetFilesAsync()).ToStorageItemsArray();
             var l = new List<StorageItem>();
             l.AddRange(fos);
             l.AddRange(fis);
@@ -231,7 +231,7 @@ namespace MSFree4All.UserControls
             if (BaseFolder.Path != ((StorageFolder)args.Item).Path && IsDirectoryBarEnabled)
                 BaseFolder = (StorageFolder)args.Item;
         }
-        
+
 
         private async void btnEditDir_Click(object sender, RoutedEventArgs e)
         {
@@ -265,7 +265,7 @@ namespace MSFree4All.UserControls
                 BcBPath.Visibility = Visibility.Visible;
             }
         }
-        
+
         private void txtPath_KeyDown(object sender, KeyRoutedEventArgs e)
         {
 
@@ -289,7 +289,7 @@ namespace MSFree4All.UserControls
             {
                 f = null;
             }
-            if(f!= null)
+            if (f != null)
             {
                 if (BaseFolder.Path != f.Path)
                     BaseFolder = f;
@@ -329,7 +329,7 @@ namespace MSFree4All.UserControls
         private void agv_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectedItems = new();
-            foreach (StorageItem item in agv.SelectedItems)
+            foreach (StorageItem item in agv.SelectedItems.Cast<StorageItem>())
             {
                 if ((SelectFiles && item.ItemType == Enums.StorageItemType.File && ((SelectFilesOnlyIf && SelectFilesOnlyIfType.Contains((item.Item as StorageFile).FileType.ToLower())) || !SelectFilesOnlyIf)) || SelectFolders)
                 {
@@ -358,6 +358,19 @@ namespace MSFree4All.UserControls
             {
                 await Windows.System.Launcher.LaunchFolderAsync(BaseFolder);
             }
+        }
+
+        private void MenuFlyout_Opened(object sender, object e)
+        {
+            try
+            {
+                if (!agv.SelectedItems.Contains((sender as FrameworkElement).DataContext))
+                    agv.SelectedItems.Add((sender as FrameworkElement).DataContext);
+            }
+            catch { }
+        }
+        private void Grid_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
         }
     }
 }

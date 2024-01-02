@@ -16,8 +16,8 @@
             InformationalBrush="{StaticResource InfoBarInformationalSeverityBackgroundBrush}"
             x:Key="ServertyToBackground"/>
         <convertes:InfobarServertyToBackground 
-            ErrorBrush="{StaticResource SystemErrorTextColor}" 
-            WarningBrush="{StaticResource InfoBarWarningSeverityBackgroundBrush}"
+            ErrorBrush="DeepPink" 
+            WarningBrush="Yellow"
             SuccessBrush="LightGreen"
             InformationalBrush="White"
             x:Key="ServertyToForeground"/>
@@ -103,9 +103,9 @@
                                     <ListView.ItemTemplate>
                                         <DataTemplate x:DataType="models:SubLog">
                                             <RichTextBlock x:DefaultBindMode="OneWay" Foreground="White">
-                                                <Paragraph>
+                                                <Paragraph FontFamily="Cascadia Code">
                                                     [<Run Text="{x:Bind Time.ToShortTimeString()}"/>] 
-                                                    [<Run Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
+                                                    [<Run FontWeight="SemiBold" Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
                                                     <Run Text="{x:Bind Message}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>
                                                 </Paragraph>
                                             </RichTextBlock>
@@ -157,9 +157,9 @@
                                     <ListView.ItemTemplate>
                                         <DataTemplate x:DataType="models:SubLog">
                                             <RichTextBlock x:DefaultBindMode="OneWay" Foreground="White">
-                                                <Paragraph>
-                                                    [<Run Text="{x:Bind Time.ToShortTimeString()}"/>] 
-                                                    [<Run Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
+                                                <Paragraph FontFamily="Cascadia Code">
+                                                    [<Run Text="{x:Bind Time.ToShortTimeString()}"/>]
+                                                    [<Run FontWeight="SemiBold" Text="{x:Bind SevertyString}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>] 
                                                     <Run Text="{x:Bind Message}" Foreground="{x:Bind Severity,Converter={StaticResource ServertyToForeground}}"/>
                                                 </Paragraph>
                                             </RichTextBlock>

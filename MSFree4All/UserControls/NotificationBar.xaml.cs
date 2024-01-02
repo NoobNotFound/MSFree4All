@@ -22,7 +22,7 @@ namespace MSFree4All.UserControls
 {
     public sealed partial class NotificationBar : UserControl
     {
-        public readonly ObservableCollection<NotificationModel> AllNotifications = new ObservableCollection<NotificationModel>();
+        public readonly ObservableCollection<NotificationModel> AllNotifications = new();
         public NotificationBar()
         {
             this.InitializeComponent();

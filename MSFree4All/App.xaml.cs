@@ -80,7 +80,7 @@ namespace MSFree4All
                 MainWindow = new MainWindow();
                 MainWindow.Activate();
 
-                new MicaBackground(MainWindow).TrySetMicaBackdrop();
+                new MicaBackground(MainWindow,Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base).TrySetMicaBackdrop();
         }
 
         public static Window MainWindow;

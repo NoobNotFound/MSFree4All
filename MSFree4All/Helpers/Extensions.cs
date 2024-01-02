@@ -1,11 +1,15 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.WinUI.UI.Controls;
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 
 namespace MSFree4All.Helpers
@@ -24,6 +28,15 @@ namespace MSFree4All.Helpers
                 Content = content
             };
             return dialog;
+        }
+        public static ContentDialog ToCodeContentDialog(this string code,string codeType,string Title)
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(code);
+            var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```{codeType}\n{code}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog(Title, "Ok", ContentDialogButton.Close);
+            d.PrimaryButtonText = "Copy to clipboard";
+            d.PrimaryButtonClick += (_, _) => { Clipboard.SetContent(dataPackage); MainWindow.NotificationBar.Notify("Copied to Clipboard!", InfoBarSeverity.Success); };
+            return d;
         }
         public static void Show(this ContentDialog dialog)
         {

@@ -33,6 +33,7 @@ namespace MSFree4All.Core.Office.Deployer
         public string BaseFolderPath { get; set; }
 
         public string ConfigurationPath { get => BaseFolderPath + "\\Configuration.xml"; }
+        public string StartScriptPath { get => BaseFolderPath + "\\Start.bat"; }
         public string ISOScriptPath { get => BaseFolderPath + "\\ISOCreator.ps1"; }
         //public string BatchFilePath { get => BaseFolderPath + "\\run.bat"; }
         public string Destination { get; set; }
@@ -41,7 +42,7 @@ namespace MSFree4All.Core.Office.Deployer
 
 
         /// <summary>
-        /// Sets the <see cref="Deployer.SetupPath"/> of the deployer and intialize. <paramref name="setupPath"/> can be exist or not.
+        /// Sets the <see cref="Deployer.SetupPath"/> of the deployer and intialize. <paramref name="setupPath"/> can exist or not.
         /// </summary>
         public void Intialize(string setupPath,string basefolderPath)
         {
@@ -123,9 +124,9 @@ namespace MSFree4All.Core.Office.Deployer
                     }
                     else if(deployType == DeployType.ISOFromMedia)
                     {
-                        var script = Consts.ISOScript.Replace("{ISOPath}", ISOPath).Replace("{BasePath}",BaseFolderPath);
+                        var script = Consts.ISOScript.Replace("{ISOPath}", ISOPath).Replace("{BasePath}", BaseFolderPath);
                         await File.WriteAllTextAsync(ISOScriptPath, script);
-                        await File.WriteAllTextAsync(BaseFolderPath + "\\RunMe.bat", ".\\setup.exe /configure Configuration.xml");
+                        await File.WriteAllTextAsync(Path.Combine(BaseFolderPath,"RunMe.bat"), ".\\setup.exe /configure Configuration.xml");
                         proc.StartInfo = new("powershell.exe")
                         {
                             Arguments = $"-executionpolicy remotesigned -File \"{ISOScriptPath}\""

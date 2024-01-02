@@ -40,15 +40,15 @@ namespace MSFree4All.Views
         /// </summary>
         public void Initialize()
         {
-            listProducts.ItemsSource = MainCore.Office.OfficeCore.Configuration.Add.Products;
+            listProducts.ItemsSource = MainCore.OfficeCore.Configuration.Add.Products;
             UpdateRemoveMSIStates();
 
-            tglCDNFallback.IsOn = MainCore.Office.OfficeCore.Configuration.Add.AllowCdnFallback;
-            tglDisplay.IsOn = MainCore.Office.OfficeCore.Configuration.Display.Level == DisplayLevel.None;
-            tglForceAppsShutDown.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN;
-            tglPicIcons.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar;
-            tglAutoAct.IsOn = MainCore.Office.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE;
-            switch (MainCore.Office.OfficeCore.Configuration.Add.Architecture)
+            tglCDNFallback.IsOn = MainCore.OfficeCore.Configuration.Add.AllowCdnFallback;
+            tglDisplay.IsOn = MainCore.OfficeCore.Configuration.Display.Level == DisplayLevel.None;
+            tglForceAppsShutDown.IsOn = MainCore.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN;
+            tglPicIcons.IsOn = MainCore.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar;
+            tglAutoAct.IsOn = MainCore.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE;
+            switch (MainCore.OfficeCore.Configuration.Add.Architecture)
             {
                 case Architecture.x64:
                     cmbxArch.SelectedIndex = 0;
@@ -62,23 +62,23 @@ namespace MSFree4All.Views
                     cmbxArch.SelectedIndex = 2;
                     break;
             }
-            cmbxLicenseType.SelectedIndex = ((int)MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type);
-            chkBxSCLCacheOverride.IsChecked = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride;
-            txtSCLCacheOverrideDir.Text = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory;
+            cmbxLicenseType.SelectedIndex = ((int)MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type);
+            chkBxSCLCacheOverride.IsChecked = MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride;
+            txtSCLCacheOverrideDir.Text = MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory;
             UpdateLicenseUI();
 
-            cmbxChannel.SelectedIndex = ((int)MainCore.Office.OfficeCore.Configuration.Add.Channel);
-            txtDescription.Text = MainCore.Office.OfficeCore.Configuration.Description;
-            txtOrgName.Text = MainCore.Office.OfficeCore.Configuration.CompanyName;
-            txtFullVer.Text = MainCore.Office.OfficeCore.Configuration.Add.Version;
-            txtDownloadPath.Text = MainCore.Office.OfficeCore.Configuration.Add.DownloadPath;
+            cmbxChannel.SelectedIndex = ((int)MainCore.OfficeCore.Configuration.Add.Channel);
+            txtDescription.Text = MainCore.OfficeCore.Configuration.Description;
+            txtOrgName.Text = MainCore.OfficeCore.Configuration.CompanyName;
+            txtFullVer.Text = MainCore.OfficeCore.Configuration.Add.Version;
+            txtDownloadPath.Text = MainCore.OfficeCore.Configuration.Add.DownloadPath;
 
-            cmbxUpdates.SelectedIndex = MainCore.Office.OfficeCore.Configuration.Updates.Enabled.ToInt();
-            cmbxUpdateChannel.SelectedIndex = MainCore.Office.OfficeCore.Configuration.Updates.Channel == null ? 8 : ((int)MainCore.Office.OfficeCore.Configuration.Updates.Channel.Value);
+            cmbxUpdates.SelectedIndex = MainCore.OfficeCore.Configuration.Updates.Enabled.ToInt();
+            cmbxUpdateChannel.SelectedIndex = MainCore.OfficeCore.Configuration.Updates.Channel == null ? 8 : ((int)MainCore.OfficeCore.Configuration.Updates.Channel.Value);
 
-            txtUpdatesDeadline.Text = MainCore.Office.OfficeCore.Configuration.Updates.DeadLine;
-            txtUpdateVer.Text = MainCore.Office.OfficeCore.Configuration.Updates.TargetVersion;
-            txtUpdatePath.Text = MainCore.Office.OfficeCore.Configuration.Updates.UpdatePath;
+            txtUpdatesDeadline.Text = MainCore.OfficeCore.Configuration.Updates.DeadLine;
+            txtUpdateVer.Text = MainCore.OfficeCore.Configuration.Updates.TargetVersion;
+            txtUpdatePath.Text = MainCore.OfficeCore.Configuration.Updates.UpdatePath;
             UpdateUpdatesUI();
         }
 
@@ -86,11 +86,11 @@ namespace MSFree4All.Views
         private void mitRemove_Click(object sender, RoutedEventArgs e)
         {
 
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.Add.Products)
+            foreach (var item in MainCore.OfficeCore.Configuration.Add.Products)
             {
                 if (item.Count == int.Parse(((MenuFlyoutItem)sender).Tag.ToString()))
                 {
-                    MainCore.Office.OfficeCore.Configuration.Add.Products.Remove(item);
+                    MainCore.OfficeCore.Configuration.Add.Products.Remove(item);
                     return;
                 }
             }
@@ -98,56 +98,56 @@ namespace MSFree4All.Views
 
         private void mitEdit_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.SelectedProductCount = int.Parse(((MenuFlyoutItem)sender).Tag.ToString());
-            OfficeMainPage.MainFrame.Navigate(typeof(OfficeProductEditor), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromRight });
+            MainCore.SelectedProductCount = int.Parse(((MenuFlyoutItem)sender).Tag.ToString());
+            OfficeMainPage.Navigate(typeof(OfficeProductEditor));
         }
 
         private void btnProduct_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.SelectedProductCount = int.Parse(((Button)sender).Tag.ToString());
-            OfficeMainPage.MainFrame.Navigate(typeof(OfficeProductEditor));
+            MainCore.SelectedProductCount = int.Parse(((Button)sender).Tag.ToString());
+            OfficeMainPage.Navigate(typeof(OfficeProductEditor));
         }
 
         private void btnAddProduct_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.OfficeProductsIDsCount++;
-            MainCore.Office.OfficeCore.Configuration.Add.Products.Add(new Core.Office.Models.OfficeProduct(MainCore.Office.OfficeCore.OfficeProductsIDsCount));
-            MainCore.Office.SelectedProductCount = MainCore.Office.OfficeCore.OfficeProductsIDsCount;
-            OfficeMainPage.MainFrame.Navigate(typeof(OfficeProductEditor), null, new Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionInfo { Effect = Microsoft.UI.Xaml.Media.Animation.SlideNavigationTransitionEffect.FromRight });
+            MainCore.OfficeCore.OfficeProductsIDsCount++;
+            MainCore.OfficeCore.Configuration.Add.Products.Add(new Core.Office.Models.OfficeProduct(MainCore.OfficeCore.OfficeProductsIDsCount));
+            MainCore.SelectedProductCount = MainCore.OfficeCore.OfficeProductsIDsCount;
+            OfficeMainPage.Navigate(typeof(OfficeProductEditor));
         }
         #endregion
 
         #region RemoveMSI
         private void chkbxMSIRemove_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.RemoveMSI.SetValues((bool)chkbxMSIRemove.IsChecked);
+            MainCore.OfficeCore.Configuration.RemoveMSI.SetValues((bool)chkbxMSIRemove.IsChecked);
             UpdateRemoveMSIStates();
         }
         public void UpdateRemoveMSIStates()
         {
 
-            chkbxForceUpgrade.IsChecked = MainCore.Office.OfficeCore.Configuration.Add.ForceUpgrade;
-            chkbxMSIRemove.IsChecked = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSILang.IsChecked = MainCore.Office.OfficeCore.Configuration.RemoveMSI.IsSameLang;
+            chkbxForceUpgrade.IsChecked = MainCore.OfficeCore.Configuration.Add.ForceUpgrade;
+            chkbxMSIRemove.IsChecked = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSILang.IsChecked = MainCore.OfficeCore.Configuration.RemoveMSI.IsSameLang;
 
-            chkbxMSILang.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIVisPro.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIVisStd.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIPrjPro.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIPrjStd.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIInfoPath.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSIInfoPathR.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
-            chkbxMSISharePoint.IsEnabled = MainCore.Office.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSILang.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIVisPro.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIVisStd.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIPrjPro.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIPrjStd.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIInfoPath.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSIInfoPathR.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
+            chkbxMSISharePoint.IsEnabled = MainCore.OfficeCore.Configuration.RemoveMSI.Value;
 
-            foreach (var item in MainCore.Office.OfficeCore.Configuration.RemoveMSI.Apps)
+            foreach (var item in MainCore.OfficeCore.Configuration.RemoveMSI.Apps)
             {
                 foreach (var Element in pnlRemMSIApps.Children)
                 {
-                    if(Element is CheckBox bx)
+                    if (Element is CheckBox bx)
                     {
-                        if(bx.Tag != null)
+                        if (bx.Tag != null)
                         {
-                            if(bx.Tag.ToString() == item.ToString())
+                            if (bx.Tag.ToString() == item.ToString())
                             {
                                 bx.IsChecked = true;
                             }
@@ -159,7 +159,7 @@ namespace MSFree4All.Views
 
         private void chkbxMSILang_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.RemoveMSI.IsSameLang = (bool)chkbxMSILang.IsChecked;
+            MainCore.OfficeCore.Configuration.RemoveMSI.IsSameLang = (bool)chkbxMSILang.IsChecked;
         }
 
         private void chkbxMSIApp_Click(object sender, RoutedEventArgs e)
@@ -167,23 +167,23 @@ namespace MSFree4All.Views
             var s = (CheckBox)sender;
             if (s.IsChecked == true)
             {
-                MainCore.Office.OfficeCore.Configuration.RemoveMSI.AddRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
+                MainCore.OfficeCore.Configuration.RemoveMSI.AddRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
             }
             else
             {
-                MainCore.Office.OfficeCore.Configuration.RemoveMSI.RemoveRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
+                MainCore.OfficeCore.Configuration.RemoveMSI.RemoveRemoveApp((RemoveMSIApps)Enum.Parse(typeof(RemoveMSIApps), s.Tag.ToString()));
             }
         }
 
         private void chkbxForceUpgrade_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.ForceUpgrade = (bool)chkbxForceUpgrade.IsChecked;
+            MainCore.OfficeCore.Configuration.Add.ForceUpgrade = (bool)chkbxForceUpgrade.IsChecked;
         }
         #endregion
 
         private void tglCDNFallback_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.AllowCdnFallback = tglCDNFallback.IsOn;
+            MainCore.OfficeCore.Configuration.Add.AllowCdnFallback = tglCDNFallback.IsOn;
         }
 
         private void cmbxArch_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -191,37 +191,37 @@ namespace MSFree4All.Views
             switch (cmbxArch.SelectedItem.ToString())
             {
                 case "64 Bit":
-                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.x64;
+                    MainCore.OfficeCore.Configuration.Add.Architecture = Architecture.x64;
                     break;
 
                 case "32 Bit":
-                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.x86;
+                    MainCore.OfficeCore.Configuration.Add.Architecture = Architecture.x86;
                     break;
 
                 case "Match OS":
-                    MainCore.Office.OfficeCore.Configuration.Add.Architecture = Architecture.AutoDetect;
+                    MainCore.OfficeCore.Configuration.Add.Architecture = Architecture.AutoDetect;
                     break;
             }
         }
 
         private void tglDisplay_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Display.Level = tglDisplay.IsOn ? DisplayLevel.None : DisplayLevel.Full;
+            MainCore.OfficeCore.Configuration.Display.Level = tglDisplay.IsOn ? DisplayLevel.None : DisplayLevel.Full;
         }
 
         private void tglForceAppsShutDown_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN = tglForceAppsShutDown.IsOn;
+            MainCore.OfficeCore.Configuration.PropertyElements.FORCEAPPSHUTDOWN = tglForceAppsShutDown.IsOn;
         }
 
         private void tglPicIcons_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar = tglPicIcons.IsOn;
+            MainCore.OfficeCore.Configuration.PropertyElements.PinIconsToTaskbar = tglPicIcons.IsOn;
         }
 
         private void tglAutoAct_Toggled(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE = tglAutoAct.IsOn;
+            MainCore.OfficeCore.Configuration.PropertyElements.AUTOACTIVATE = tglAutoAct.IsOn;
         }
 
         #region Licensing
@@ -230,20 +230,20 @@ namespace MSFree4All.Views
             switch (cmbxLicenseType.SelectedItem.ToString())
             {
                 case "User Based":
-                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.UserBased;
+                    MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.UserBased;
                     break;
                 case "Device Based":
-                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.DeviceBased;
+                    MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.DeviceBased;
                     break;
                 case "Shared Computer":
-                    MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.SharedComputer;
+                    MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type = LicensingType.SharedComputer;
                     break;
             }
             UpdateLicenseUI();
         }
         private void UpdateLicenseUI()
         {
-            bool isSCL = MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type == LicensingType.SharedComputer;
+            bool isSCL = MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.Type == LicensingType.SharedComputer;
             chkBxSCLCacheOverride.IsEnabled = isSCL;
             txtSCLCacheOverrideDir.IsEnabled = isSCL && chkBxSCLCacheOverride.IsChecked == true;
 
@@ -251,82 +251,82 @@ namespace MSFree4All.Views
 
         private void chkBxSCLCacheOverride_Click(object sender, RoutedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride = chkBxSCLCacheOverride.IsChecked == true;
+            MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverride = chkBxSCLCacheOverride.IsChecked == true;
             UpdateLicenseUI();
         }
 
         private void txtSCLCacheOverrideDir_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory = txtSCLCacheOverrideDir.Text;
+            MainCore.OfficeCore.Configuration.PropertyElements.LicensingProperties.SCLCacheOverrideDirectory = txtSCLCacheOverrideDir.Text;
         }
         #endregion
 
         private void cmbxChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.Channel = Enum.Parse<Channel>((cmbxChannel.SelectedItem as ComboBoxItem).Tag.ToString());
+            MainCore.OfficeCore.Configuration.Add.Channel = Enum.Parse<Channel>((cmbxChannel.SelectedItem as ComboBoxItem).Tag.ToString());
         }
 
         #region Information
         private void txtOrgName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.CompanyName = txtOrgName.Text;
+            MainCore.OfficeCore.Configuration.CompanyName = txtOrgName.Text;
         }
 
         private void txtDescription_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Description = txtDescription.Text;
+            MainCore.OfficeCore.Configuration.Description = txtDescription.Text;
         }
         #endregion
 
         private void txtFullVer_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.Version = txtFullVer.Text;
+            MainCore.OfficeCore.Configuration.Add.Version = txtFullVer.Text;
         }
 
         private void txtDownloadPath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.DownloadPath = txtDownloadPath.Text;
+            MainCore.OfficeCore.Configuration.Add.DownloadPath = txtDownloadPath.Text;
         }
 
         private void txtSourcePath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Add.SourcePath = txtSourcePath.Text;
+            MainCore.OfficeCore.Configuration.Add.SourcePath = txtSourcePath.Text;
         }
 
         #region Updates
         private void cmbxUpdates_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Updates.Enabled = cmbxUpdates.SelectedIndex.ToBool();
+            MainCore.OfficeCore.Configuration.Updates.Enabled = cmbxUpdates.SelectedIndex.ToBool();
             UpdateUpdatesUI();
         }
 
         private void UpdateUpdatesUI()
         {
-            txtUpdatePath.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
-            txtUpdatesDeadline.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
-            txtUpdateVer.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
-            cmbxUpdateChannel.IsEnabled = MainCore.Office.OfficeCore.Configuration.Updates.Enabled == true;
+            txtUpdatePath.IsEnabled = MainCore.OfficeCore.Configuration.Updates.Enabled == true;
+            txtUpdatesDeadline.IsEnabled = MainCore.OfficeCore.Configuration.Updates.Enabled == true;
+            txtUpdateVer.IsEnabled = MainCore.OfficeCore.Configuration.Updates.Enabled == true;
+            cmbxUpdateChannel.IsEnabled = MainCore.OfficeCore.Configuration.Updates.Enabled == true;
         }
 
         private void cmbxUpdateChannel_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var tag = ((ComboBoxItem)cmbxUpdateChannel.SelectedItem).Tag;
-            MainCore.Office.OfficeCore.Configuration.Updates.Channel = tag == null ? null : Enum.Parse<Channel>(tag.ToString());
+            MainCore.OfficeCore.Configuration.Updates.Channel = tag == null ? null : Enum.Parse<Channel>(tag.ToString());
         }
 
         private void txtUpdatePath_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Updates.UpdatePath = txtUpdatePath.Text;
+            MainCore.OfficeCore.Configuration.Updates.UpdatePath = txtUpdatePath.Text;
         }
 
         private void txtUpdateVer_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Updates.TargetVersion = txtUpdateVer.Text;
+            MainCore.OfficeCore.Configuration.Updates.TargetVersion = txtUpdateVer.Text;
         }
 
         private void txtUpdatesDeadline_TextChanged(object sender, TextChangedEventArgs e)
         {
-            MainCore.Office.OfficeCore.Configuration.Updates.DeadLine = txtUpdatesDeadline.Text;
+            MainCore.OfficeCore.Configuration.Updates.DeadLine = txtUpdatesDeadline.Text;
         }
         #endregion
 
@@ -334,9 +334,9 @@ namespace MSFree4All.Views
         public bool Compile()
         {
             var nID = MainWindow.NotificationBar.Notify("Compiling...", InfoBarSeverity.Informational, autoHide: false);
-            var r = MainCore.Office.OfficeCore.Compile();
+            var r = MainCore.OfficeCore.Compile();
             MainWindow.NotificationBar.Hide(nID);
-            if (r.Count() > 0)
+            if (r.Any())
             {
                 MainWindow.NotificationBar.Change(nID,
                     title: "Compile Failed!",
@@ -357,7 +357,7 @@ namespace MSFree4All.Views
                 catch { }
                 MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                 var btn = new Button() { Content = "Errors" };
-                int eID=  MainWindow.LogsView.AddStringLog("Failed to compile Office configuration.", InfoBarSeverity.Error, r,customCOntrols: new() { btn });
+                int eID = MainWindow.LogsView.AddStringLog("Failed to compile Office configuration.", InfoBarSeverity.Error, r, customCOntrols: new() { btn });
                 btn.Click += (_, _) =>
                 {
                     s = new StackPanel();
@@ -367,52 +367,47 @@ namespace MSFree4All.Views
                         var li = from t in item select t.ToReadableString();
                         s.Children.Add(new BulletsList() { ItemsSource = li });
                     }
-                    try 
+                    try
                     {
                         _ = s.ToContentDialog("Serialize Error!", "Ok", ContentDialogButton.Close).ShowAsync();
-                    } 
-                    catch { } };
+                    }
+                    catch { }
+                };
                 return false;
             }
             MainWindow.NotificationBar.Change(nID,
                 title: "Compile Complete!",
                 severity: InfoBarSeverity.Success, visibility: true);
             var sbtn = new Button() { Content = "View" };
-            var lid = MainWindow.LogsView.AddStringLog("Successfully compiled Office configuration.", InfoBarSeverity.Success, MainCore.Office.OfficeCore.SerializeLastCompiled(), customCOntrols: new() { sbtn });
+            var lid = MainWindow.LogsView.AddStringLog("Successfully compiled Office configuration.", InfoBarSeverity.Success, MainCore.OfficeCore.SerializeLastCompiled(), customCOntrols: new() { sbtn });
             sbtn.Click += (_, _) => { try { _ = GetViewConfigDialog(MainWindow.LogsView.GetUniqueThings(lid).ToString()).ShowAsync(); } catch { } };
             MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 2), nID);
             return true;
         }
         private void btnViewXML_Click(object sender, RoutedEventArgs e)
         {
-            if(Compile())
+            if (Compile())
             {
                 _ = GetViewConfigDialog().ShowAsync();
             }
         }
         private ContentDialog GetViewConfigDialog(string xml = null)
         {
-            var cxml = xml ?? MainCore.Office.OfficeCore.SerializeLastCompiled();
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(cxml);
-            var d = new MarkdownTextBlock() { CornerRadius = new CornerRadius { TopLeft = 7, BottomLeft = 7, BottomRight = 7, TopRight = 7 }, Padding = new Thickness(0), Text = $"```xml\n{cxml}\n```", TextWrapping = TextWrapping.WrapWholeWords }.ToContentDialog("Output", "Ok", ContentDialogButton.Close);
-            d.PrimaryButtonText = "Copy to clipboard";
-            d.PrimaryButtonClick += (_, _) => { Clipboard.SetContent(dataPackage); MainWindow.NotificationBar.Notify("Copied to Clipboard!", InfoBarSeverity.Success); };
+            var cxml = xml ?? MainCore.OfficeCore.SerializeLastCompiled();
+            var d = cxml.ToCodeContentDialog("xml", "Output");
             d.SecondaryButtonText = "Save";
             d.SecondaryButtonClick += (_, _) => btnSaveXML_Click(null, null);
             return d;
         }
         private async void btnLoadXML_Click(object sender, RoutedEventArgs e)
         {
-            var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational,description: "Waiting for the file...", autoHide:false);
-            var fop = new FileOpenPicker();
-            fop.FileTypeFilter.Add(".xml");
-            WinRT.Interop.InitializeWithWindow.Initialize(fop, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
+            var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational, description: "Waiting for the file...", autoHide: false);
+            var fop = new Helpers.Pickers.FileOpenPicker("Select Configuration",await StorageFolder.GetFolderFromPathAsync("C:\\"),null, new string[] {".xml"});
             var f = await fop.PickSingleFileAsync();
             if (f != null)
             {
                 var str = await FileIO.ReadTextAsync(f);
-                var r = MainCore.Office.OfficeCore.DeserializeFromString(str,false);
+                var r = MainCore.OfficeCore.DeserializeFromString(str, false);
                 if (r.Count > 0)
                 {
                     MainWindow.NotificationBar.Change(nID,
@@ -426,7 +421,7 @@ namespace MSFree4All.Views
                     {
                         var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
                         d.PrimaryButtonText = "Continue Anyaway";
-                        d.PrimaryButtonClick += (s, e) => MainCore.Office.OfficeCore.DeserializeFromString(str, true);
+                        d.PrimaryButtonClick += (s, e) => MainCore.OfficeCore.DeserializeFromString(str, true);
                         _ = d.ShowAsync();
                     }
                     catch { }
@@ -452,20 +447,20 @@ namespace MSFree4All.Views
 
         private async void btnSaveXML_Click(object sender, RoutedEventArgs e)
         {
-            if(Compile())
+            if (Compile())
             {
 
-                var nID = MainWindow.NotificationBar.Notify("Picking a File", InfoBarSeverity.Informational,description:"Waiting for the user.", autoHide: false);
+                var nID = MainWindow.NotificationBar.Notify("Picking a File", InfoBarSeverity.Informational, description: "Waiting for the user.", autoHide: false);
                 var fsp = new FileSavePicker();
                 fsp.FileTypeChoices.Add("XML Configuration", new List<string> { ".xml" });
                 WinRT.Interop.InitializeWithWindow.Initialize(fsp, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
                 var f = await fsp.PickSaveFileAsync();
                 if (f != null)
                 {
-                    await FileIO.WriteTextAsync(f, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                    await FileIO.WriteTextAsync(f, MainCore.OfficeCore.SerializeLastCompiled());
                     MainWindow.NotificationBar.Change(nID,
                         title: "Export Successful!",
-                        description:"",
+                        description: "",
                         severity: InfoBarSeverity.Success);
                 }
                 else
@@ -473,7 +468,7 @@ namespace MSFree4All.Views
                     MainWindow.NotificationBar.Change(nID,
                         title: "Export Failed!",
                         severity: InfoBarSeverity.Warning,
-                        description:"The dialog was closed");
+                        description: "The dialog was closed");
                 }
                 MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
             }
@@ -484,22 +479,22 @@ namespace MSFree4All.Views
         {
             if (Compile())
             {
-                var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational,autoHide:false);
-                string t = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
-                var folder = await (await App.GetLocalFolder()).CreateFolderAsync(t,CreationCollisionOption.GenerateUniqueName);
-                var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder,"setup.exe",NameCollisionOption.ReplaceExisting);
-                MainCore.Office.OfficeCore.Deployer.Intialize(file.Path,folder.Path);
+                var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational, autoHide: false);
+                string t = DateTime.Now.ToString("yyyy-MM-dd-HH.mm.ss");
+                var folder = await (await App.GetLocalFolder()).CreateFolderAsync(t, CreationCollisionOption.GenerateUniqueName);
+                var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder, "setup.exe", NameCollisionOption.ReplaceExisting);
+                MainCore.OfficeCore.Deployer.Intialize(file.Path, folder.Path);
 
-                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Download, MainCore.Office.OfficeCore.SerializeLastCompiled());
-                if(errs.Count > 0)
+                var errs = await MainCore.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Download, MainCore.OfficeCore.SerializeLastCompiled());
+                if (errs.Count > 0)
                 {
                     MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
                     MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
-                                new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!","OK").Show();
+                    new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!", "OK").Show();
                 }
                 else
                 {
-                    MainWindow.NotificationBar.Change(nID,"Setup is running!",InfoBarSeverity.Success,"Successfully created config files to the " + folder.Path + ".");
+                    MainWindow.NotificationBar.Change(nID, "Setup is running!", InfoBarSeverity.Success, "Successfully created config files to the " + folder.Path + ".");
                     MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                 }
             }
@@ -508,7 +503,7 @@ namespace MSFree4All.Views
         private async void btnDeployMents_Click(object sender, RoutedEventArgs e)
         {
             var lf = await App.GetLocalFolder();
-            
+
             var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, FileClickOnlyIf = true };
             fop.NoDelete.Add("setup.exe");
             fop.NoDelete.Add("Configuration.xml");
@@ -574,9 +569,9 @@ namespace MSFree4All.Views
                     if (Item != null && ItemType == Enums.StorageItemType.Folder)
                     {
                         var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync((StorageFolder)Item, "setup.exe", NameCollisionOption.ReplaceExisting);
-                        MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
+                        MainCore.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
 
-                        var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                        var errs = await MainCore.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.OfficeCore.SerializeLastCompiled());
                         if (errs.Count > 0)
                         {
                             MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
@@ -604,12 +599,12 @@ namespace MSFree4All.Views
             if (Compile())
             {
                 var nID = MainWindow.NotificationBar.Notify("Deploying Office", InfoBarSeverity.Informational, autoHide: false);
-                string t = DateTime.Now.ToString("yyyy-MM-dd-HHmmss");
-                var folder = await(await App.GetLocalFolder()).CreateFolderAsync(t, CreationCollisionOption.GenerateUniqueName);
-                var file = await(await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder, "setup.exe", NameCollisionOption.ReplaceExisting);
-                MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, folder.Path);
+                string t = DateTime.Now.ToString("yyyy-MM-dd-HH.mm.ss");
+                var folder = await (await App.GetLocalFolder()).CreateFolderAsync(t, CreationCollisionOption.GenerateUniqueName);
+                var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync(folder, "setup.exe", NameCollisionOption.ReplaceExisting);
+                MainCore.OfficeCore.Deployer.Intialize(file.Path, folder.Path);
 
-                var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.Office.OfficeCore.SerializeLastCompiled());
+                var errs = await MainCore.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.Configure, MainCore.OfficeCore.SerializeLastCompiled());
                 if (errs.Count > 0)
                 {
                     MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
@@ -672,7 +667,7 @@ namespace MSFree4All.Views
                     if (Item != null && ItemType == Enums.StorageItemType.Folder)
                     {
                         var file = await (await StorageFile.GetFileFromPathAsync($@"{App.GetAppDir()}\Assets\Setup.exe")).CopyAsync((StorageFolder)Item, "setup.exe", NameCollisionOption.ReplaceExisting);
-                        MainCore.Office.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
+                        MainCore.OfficeCore.Deployer.Intialize(file.Path, Item.Path);
 
                         var fsp = new FileSavePicker();
                         fsp.FileTypeChoices.Add("ISO File", new List<string> { ".iso" });
@@ -680,13 +675,13 @@ namespace MSFree4All.Views
                         var f = await fsp.PickSaveFileAsync();
                         if (f != null)
                         {
-                            var errs = await MainCore.Office.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.ISOFromMedia, MainCore.Office.OfficeCore.SerializeLastCompiled(), f.Path);
+                            var errs = await MainCore.OfficeCore.Deployer.Deploy(Core.Office.Deployer.Enums.DeployType.ISOFromMedia, MainCore.OfficeCore.SerializeLastCompiled(), f.Path);
 
                             if (errs.Count > 0)
                             {
                                 MainWindow.NotificationBar.Change(nID, "Deploy failed!", InfoBarSeverity.Error, "Some errors were detected.");
                                 MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
-                                new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!","OK").Show();
+                                new BulletsList() { ItemsSource = errs }.ToContentDialog("Errors detected!", "OK").Show();
                             }
                             else
                             {
@@ -709,100 +704,97 @@ namespace MSFree4All.Views
                 c.Show();
             }
         }
-
         private async void MitLoadXMLDeploys_Click(object sender, RoutedEventArgs e)
         {
-            if (Compile())
+            var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational, autoHide: false);
+            var g = new StackPanel();
+            var i = new InfoBar()
             {
-                var nID = MainWindow.NotificationBar.Notify("Importing XML", InfoBarSeverity.Informational, autoHide: false);
-                var g = new StackPanel();
-                var i = new InfoBar()
+                Title = "Warning!",
+                Message = "Cannot find the Configuration",
+                Severity = InfoBarSeverity.Warning,
+                Visibility = Visibility.Collapsed,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                IsClosable = false,
+                IsOpen = true
+            };
+            var lf = await App.GetLocalFolder();
+            var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, GotoFolders = false, SelectionMode = ListViewSelectionMode.Single };
+            g.Children.Add(fop);
+            g.Children.Add(i);
+            var c = g.ToContentDialog("Choose Configuration.xml", "Cancel", ContentDialogButton.Primary);
+            c.PrimaryButtonText = "Select";
+            c.IsPrimaryButtonEnabled = false;
+            fop.SelectionChanged += async (s, e) =>
+            {
+                var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                if (ItemType == Enums.StorageItemType.Folder)
                 {
-                    Title = "Warning!",
-                    Message = "Cannot find the Configuration",
-                    Severity = InfoBarSeverity.Warning,
-                    Visibility = Visibility.Collapsed,
-                    VerticalAlignment = VerticalAlignment.Bottom,
-                    IsClosable = false,
-                    IsOpen = true
-                };
-                var lf = await App.GetLocalFolder();
-                var fop = new UserControls.FolderPicker(lf) { RootFolder = lf, LaunchFiles = false, GotoFolders = false, SelectionMode = ListViewSelectionMode.Single };
-                g.Children.Add(fop);
-                g.Children.Add(i);
-                var c = g.ToContentDialog("Choose Configuration.xml", "Cancel", ContentDialogButton.Primary);
-                c.PrimaryButtonText = "Select";
-                c.IsPrimaryButtonEnabled = false;
-                fop.SelectionChanged += async (s, e) =>
-                {
-                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
-                    if (ItemType == Enums.StorageItemType.Folder)
+                    try
                     {
+                        await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
+                        c.IsPrimaryButtonEnabled = true;
+                        i.Visibility = Visibility.Collapsed;
+                    }
+                    catch (NullReferenceException) { i.Visibility = Visibility.Collapsed; }
+                    catch
+                    {
+                        c.IsPrimaryButtonEnabled = false;
+                        i.Visibility = Visibility.Visible;
+                    }
+                }
+            };
+            c.PrimaryButtonClick += async (_, _) =>
+            {
+                var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
+                if (Item != null && ItemType == Enums.StorageItemType.Folder)
+                {
+                    var f = await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
+                    var str = await FileIO.ReadTextAsync(f);
+                    var r = MainCore.OfficeCore.DeserializeFromString(str, false);
+                    if (r.Count > 0)
+                    {
+                        MainWindow.NotificationBar.Change(nID,
+                            title: "Import Failed!",
+                            severity: InfoBarSeverity.Error,
+                            description: "There were errors in the configuration");
+                        MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+                        var s = new StackPanel();
+                        s.Children.Add(new BulletsList { ItemsSource = r, WordWrap = false });
                         try
                         {
-                            await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
-                            c.IsPrimaryButtonEnabled = true;
-                            i.Visibility = Visibility.Collapsed;
+                            var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
+                            d.PrimaryButtonText = "Continue Anyaway";
+                            d.PrimaryButtonClick += (s, e) => MainCore.OfficeCore.DeserializeFromString(str, true);
+                            _ = d.ShowAsync();
                         }
-                        catch (NullReferenceException) { i.Visibility = Visibility.Collapsed; }
-                        catch
-                        {
-                            c.IsPrimaryButtonEnabled = false;
-                            i.Visibility = Visibility.Visible;
-                        }
-                    }
-                };
-                c.PrimaryButtonClick += async (_, _) =>
-                {
-                    var (Item, ItemType) = fop.SelectedItems.FirstOrDefault();
-                    if (Item != null && ItemType == Enums.StorageItemType.Folder)
-                    {
-                        var f = await ((StorageFolder)Item).GetFileAsync("Configuration.xml");
-                        var str = await FileIO.ReadTextAsync(f);
-                        var r = MainCore.Office.OfficeCore.DeserializeFromString(str, false);
-                        if (r.Count > 0)
-                        {
-                            MainWindow.NotificationBar.Change(nID,
-                                title: "Import Failed!",
-                                severity: InfoBarSeverity.Error,
-                                description: "There were errors in the configuration");
-                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
-                            var s = new StackPanel();
-                            s.Children.Add(new BulletsList { ItemsSource = r, WordWrap = false });
-                            try
-                            {
-                                var d = new ScrollViewer() { Content = s, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollMode = ScrollMode.Enabled, Padding = new Thickness(0, 0, 7, 7) }.ToContentDialog("Deserialize Error!", "Ok", ContentDialogButton.Close);
-                                d.PrimaryButtonText = "Continue Anyaway";
-                                d.PrimaryButtonClick += (s, e) => MainCore.Office.OfficeCore.DeserializeFromString(str, true);
-                                _ = d.ShowAsync();
-                            }
-                            catch { }
-                        }
-                        else
-                        {
-                            MainWindow.NotificationBar.Change(nID,
-                                title: "Import Successful!",
-                                severity: InfoBarSeverity.Success,
-                                description: "Successfully imported XML from\n" + f.Path);
-                            MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
-                        }
+                        catch { }
                     }
                     else
                     {
-                        MainWindow.NotificationBar.Change(nID, "Import failed!", InfoBarSeverity.Error, "Cannot find one or more folders.");
+                        MainWindow.NotificationBar.Change(nID,
+                            title: "Import Successful!",
+                            severity: InfoBarSeverity.Success,
+                            description: "Successfully imported XML from\n" + f.Path);
                         MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
                     }
-                };
-                c.CloseButtonClick += (_, _) =>
+                }
+                else
                 {
-                    MainWindow.NotificationBar.Change(nID,
-                        title: "Import Failed!",
-                        severity: InfoBarSeverity.Warning,
-                        description: "The dialog was closed");
+                    MainWindow.NotificationBar.Change(nID, "Import failed!", InfoBarSeverity.Error, "Cannot find one or more folders.");
                     MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
-                };
-                c.Show();
-            }
+                }
+            };
+            c.CloseButtonClick += (_, _) =>
+            {
+                MainWindow.NotificationBar.Change(nID,
+                    title: "Import Failed!",
+                    severity: InfoBarSeverity.Warning,
+                    description: "The dialog was closed");
+                MainWindow.NotificationBar.WaintAndHide(new TimeSpan(0, 0, 3), nID);
+            };
+            c.Show();
         }
+
     }
 }
